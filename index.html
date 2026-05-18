@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Blue Team — Threat Hunting Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --bg:#07090d;
+  --surface:#0c0f15;
+  --surface2:#111620;
+  --surface3:#161c28;
+  --border:#1a2232;
+  --border2:#1f2a3e;
+  --accent:#00e5ff;
+  --accent-dim:rgba(0,229,255,.12);
+  --green:#39ff9a;
+  --green-dim:rgba(57,255,154,.1);
+  --red:#ff4060;
+  --orange:#ff9520;
+  --yellow:#ffd060;
+  --text:#bdd0e0;
+  --text-muted:#3d5268;
+  --text-dim:#6a88a0;
+  --card:#090c12;
+  --font-mono:'JetBrains Mono',monospace;
+  --font-kr:'Noto Sans KR',sans-serif;
+  --glow-cyan:0 0 24px rgba(0,229,255,.18);
+  --glow-green:0 0 24px rgba(57,255,154,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--font-kr);display:flex;flex-direction:column}
+
+/* scanlines */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px)}
+
+/* ─── HEADER ─────────────────────────────── */
+.header{
+  flex-shrink:0;height:50px;background:var(--surface);
+  border-bottom:1px solid var(--border2);
+  display:flex;align-items:center;padding:0 18px;gap:12px;
+  box-shadow:0 2px 28px rgba(0,0,0,.6);position:relative;z-index:100;
+}
+.logo{font-family:var(--font-mono);font-weight:700;font-size:1rem;letter-spacing:.12em;
+  color:var(--accent);text-shadow:var(--glow-cyan);white-space:nowrap}
+.logo em{color:var(--green);font-style:normal}
+.logo-sub{font-family:var(--font-mono);font-size:.6rem;color:var(--text-muted);letter-spacing:.1em;
+  border:1px solid var(--border2);padding:2px 8px;border-radius:2px}
+.hdr-course{font-size:.72rem;color:var(--text-dim);
+  border-left:1px solid var(--border2);padding-left:12px;margin-left:4px}
+.hdr-course span{color:var(--accent);font-family:var(--font-mono)}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.sev-badge{font-family:var(--font-mono);font-size:.62rem;padding:3px 10px;border-radius:2px;
+  border:1px solid var(--accent);color:var(--accent);letter-spacing:.08em;display:none}
+.hdr-btn{font-family:var(--font-kr);font-size:.72rem;font-weight:500;padding:6px 14px;
+  border-radius:3px;cursor:pointer;transition:.18s;background:transparent;
+  border:1px solid var(--border2);color:var(--text-dim)}
+.hdr-btn:hover{border-color:var(--accent);color:var(--accent);box-shadow:var(--glow-cyan)}
+.hdr-btn.primary{border-color:var(--green);color:var(--green)}
+.hdr-btn.primary:hover{background:var(--green-dim);box-shadow:var(--glow-green)}
+
+/* ─── BODY LAYOUT ───────────────────────── */
+.body{flex:1;display:grid;grid-template-columns:200px 1fr;overflow:hidden}
+
+/* ─── LEFT NAV ──────────────────────────── */
+.leftnav{background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden}
+
+.nav-section{padding:10px 10px 6px;border-bottom:1px solid var(--border)}
+.nav-label{font-family:var(--font-mono);font-size:.55rem;letter-spacing:.18em;
+  color:var(--text-muted);text-transform:uppercase;padding:0 4px;margin-bottom:6px}
+.nav-item{
+  display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:3px;
+  cursor:pointer;transition:.15s;font-size:.78rem;color:var(--text-dim);
+  border:1px solid transparent;margin-bottom:2px;text-decoration:none;
+}
+.nav-item:hover{background:var(--surface2);color:var(--text);border-color:var(--border)}
+.nav-item.active{background:rgba(0,229,255,.07);border-color:rgba(0,229,255,.25);
+  color:var(--accent)}
+.nav-item.ext-link{color:var(--text-dim)}
+.nav-item.ext-link:hover{color:var(--accent);border-color:rgba(0,229,255,.3)}
+.nav-item .ni-icon{font-size:.85rem;width:16px;text-align:center;flex-shrink:0}
+.nav-item .ni-badge{margin-left:auto;font-family:var(--font-mono);font-size:.58rem;
+  background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.25);
+  color:var(--accent);padding:1px 6px;border-radius:2px}
+.nav-item.siem-link{border-color:rgba(57,255,154,.2);color:var(--green)}
+.nav-item.siem-link:hover{background:var(--green-dim);border-color:rgba(57,255,154,.4)}
+
+/* incidents list in nav */
+.inc-list{flex:1;overflow-y:auto;padding:6px 8px}
+.inc-card{
+  padding:8px 10px;border-radius:3px;border:1px solid var(--border);
+  margin-bottom:5px;cursor:pointer;transition:.15s;background:var(--card);
+}
+.inc-card:hover{border-color:var(--border2);background:var(--surface2)}
+.inc-card.active{border-color:rgba(0,229,255,.35);background:rgba(0,229,255,.05);
+  box-shadow:inset 2px 0 0 var(--accent)}
+.ic-id{font-family:var(--font-mono);font-size:.58rem;color:var(--accent);margin-bottom:3px}
+.ic-title{font-size:.73rem;font-weight:500;color:var(--text);line-height:1.3;margin-bottom:4px}
+.ic-meta{display:flex;align-items:center;gap:5px}
+.ic-sev{font-family:var(--font-mono);font-size:.55rem;padding:1px 5px;border-radius:2px;border:1px solid}
+.ic-sev.CRITICAL{border-color:var(--red);color:var(--red)}
+.ic-sev.HIGH{border-color:var(--orange);color:var(--orange)}
+.ic-sev.MEDIUM{border-color:var(--yellow);color:var(--yellow)}
+.ic-sev.LOW{border-color:var(--green);color:var(--green)}
+.ic-sev.INFORMATIONAL{border-color:var(--accent);color:var(--accent)}
+.ic-cnt{font-family:var(--font-mono);font-size:.58rem;color:var(--text-muted)}
+.ic-del{margin-left:auto;background:none;border:none;color:var(--text-muted);
+  cursor:pointer;font-size:.75rem;padding:1px 3px;border-radius:2px;transition:.15s;line-height:1}
+.ic-del:hover{color:var(--red)}
+.inc-new-btn{
+  margin:6px 8px 8px;padding:7px 10px;border-radius:3px;cursor:pointer;
+  font-family:var(--font-kr);font-size:.73rem;font-weight:500;
+  background:transparent;border:1px dashed var(--border2);color:var(--text-muted);
+  width:calc(100% - 16px);transition:.15s;
+}
+.inc-new-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+
+/* ─── MAIN ───────────────────────────────── */
+.main{display:grid;grid-template-columns:1fr 210px;overflow:hidden}
+
+/* timeline column */
+.tl-col{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border)}
+.toolbar{
+  flex-shrink:0;padding:8px 16px;background:var(--surface2);
+  border-bottom:1px solid var(--border);
+  display:flex;gap:7px;align-items:center;
+}
+.btn{font-family:var(--font-kr);font-weight:600;font-size:.72rem;
+  padding:6px 13px;border-radius:3px;border:none;cursor:pointer;transition:.18s}
+.btn-p{background:var(--green);color:#000}
+.btn-p:hover{background:#5fffa8;box-shadow:var(--glow-green)}
+.btn-g{background:transparent;border:1px solid var(--border2);color:var(--text-dim)}
+.btn-g:hover{border-color:var(--text-dim);color:var(--text)}
+.btn-d{background:transparent;border:1px solid rgba(255,64,96,.4);color:var(--red)}
+.btn-d:hover{background:rgba(255,64,96,.08)}
+.search-wrap{position:relative;flex:1;min-width:120px}
+.search-wrap input{
+  width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);
+  font-family:var(--font-mono);font-size:.72rem;padding:6px 10px 6px 28px;border-radius:3px;outline:none}
+.search-wrap input::placeholder{color:var(--text-muted)}
+.search-wrap input:focus{border-color:var(--accent)}
+.si{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:.75rem}
+
+.tl-wrap{flex:1;overflow-y:auto;padding:16px 16px}
+
+/* empty states */
+.state-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100%;color:var(--text-muted);font-family:var(--font-mono);font-size:.8rem;gap:10px;
+  opacity:.45;text-align:center;line-height:1.7}
+.state-empty .ico{font-size:2.2rem;opacity:.3;display:block;margin-bottom:4px}
+
+/* timeline rail */
+.tl-rail{position:relative;padding-left:32px}
+.tl-rail::before{content:'';position:absolute;left:10px;top:4px;bottom:4px;
+  width:1px;background:linear-gradient(to bottom,var(--accent),var(--green),transparent);opacity:.25}
+
+.sc{position:relative;margin-bottom:12px;animation:fadeUp .28s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.sc-dot{position:absolute;left:-26px;top:13px;width:9px;height:9px;border-radius:50%;
+  border:2px solid var(--accent);background:var(--bg);box-shadow:0 0 7px var(--accent)}
+/* per-tactic dot colors */
+.dot-ia{border-color:#ff9520;box-shadow:0 0 7px #ff9520}
+.dot-ex{border-color:#ff4060;box-shadow:0 0 7px #ff4060}
+.dot-pe{border-color:#c060ff;box-shadow:0 0 7px #c060ff}
+.dot-ef{border-color:#00e5ff;box-shadow:0 0 7px #00e5ff}
+.dot-lm{border-color:#ffd060;box-shadow:0 0 7px #ffd060}
+.dot-c2{border-color:#ff2080;box-shadow:0 0 7px #ff2080}
+.dot-di{border-color:#39ff9a;box-shadow:0 0 7px #39ff9a}
+.dot-pr{border-color:#ff9520;box-shadow:0 0 7px #ff9520}
+.dot-de{border-color:#a0c0ff;box-shadow:0 0 7px #a0c0ff}
+.dot-ca{border-color:#ff6080;box-shadow:0 0 7px #ff6080}
+.dot-co{border-color:#60d0ff;box-shadow:0 0 7px #60d0ff}
+.dot-im{border-color:#ff4060;box-shadow:0 0 7px #ff4060}
+
+.sc-inner{background:var(--card);border:1px solid var(--border);border-radius:4px;
+  padding:12px 14px;transition:.2s}
+.sc-inner:hover{border-color:rgba(0,229,255,.2);box-shadow:0 2px 14px rgba(0,229,255,.05)}
+
+.sc-head{display:flex;align-items:center;gap:7px;margin-bottom:5px;flex-wrap:wrap}
+.sc-num{font-family:var(--font-mono);font-size:.56rem;color:var(--text-muted);
+  border:1px solid var(--border);padding:1px 6px;border-radius:2px;white-space:nowrap}
+.sc-title{font-size:.88rem;font-weight:600;color:var(--text);flex:1}
+.sc-acts{display:flex;gap:4px;margin-left:auto}
+.ib{background:none;border:1px solid var(--border);color:var(--text-muted);
+  padding:3px 8px;border-radius:2px;cursor:pointer;font-size:.65rem;transition:.15s;
+  font-family:var(--font-kr)}
+.ib:hover{border-color:var(--accent);color:var(--accent)}
+.ib.del:hover{border-color:var(--red);color:var(--red)}
+.sc-ts{font-family:var(--font-mono);font-size:.63rem;color:var(--accent);margin-bottom:5px;opacity:.9}
+.sc-desc{font-size:.77rem;color:var(--text-dim);line-height:1.65;margin-bottom:7px}
+.sc-pills{display:flex;gap:5px;flex-wrap:wrap;font-family:var(--font-mono);font-size:.62rem}
+.pill{padding:2px 7px;border-radius:2px;border:1px solid var(--border);color:var(--text-muted)}
+.pt{border-color:rgba(57,255,154,.3);color:var(--green)}
+.pk{border-color:rgba(0,229,255,.3);color:var(--accent)}
+.pu{border-color:rgba(192,96,255,.3);color:#c060ff}
+.pa{border-color:rgba(255,149,32,.3);color:var(--orange)}
+
+.ioc-blk{margin-top:7px;padding:7px 10px;background:rgba(0,0,0,.35);border-radius:3px;
+  border-left:2px solid var(--red)}
+.ioc-lbl{font-family:var(--font-mono);font-size:.56rem;color:var(--red);letter-spacing:.1em;margin-bottom:3px}
+.ioc-list{font-family:var(--font-mono);font-size:.67rem;color:#ff9999;line-height:1.8}
+
+.siem-ref{margin-top:5px;font-family:var(--font-mono);font-size:.63rem;color:var(--text-muted)}
+
+.card-imgs{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.ci-wrap{position:relative;width:76px;height:56px;border-radius:3px;overflow:hidden;
+  border:1px solid var(--border);cursor:pointer;flex-shrink:0}
+.ci-wrap img{width:100%;height:100%;object-fit:cover;transition:.2s}
+.ci-wrap:hover img{transform:scale(1.06)}
+.ci-del{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.75);color:var(--red);
+  border:none;cursor:pointer;border-radius:2px;width:15px;height:15px;font-size:.55rem;
+  display:flex;align-items:center;justify-content:center;opacity:0;transition:.15s}
+.ci-wrap:hover .ci-del{opacity:1}
+
+/* ─── RIGHT SIDEBAR ──────────────────────── */
+.rsb{padding:12px 12px;overflow-y:auto;background:var(--surface)}
+.rsb-sec{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.rsb-lbl{font-family:var(--font-mono);font-size:.54rem;letter-spacing:.16em;
+  color:var(--text-muted);text-transform:uppercase;margin-bottom:8px}
+.stat-row{display:flex;justify-content:space-between;align-items:center;
+  padding:4px 0;font-size:.72rem;color:var(--text-dim);border-bottom:1px solid rgba(255,255,255,.025)}
+.stat-row strong{font-family:var(--font-mono);color:var(--accent);font-size:.85rem}
+.fm{display:flex;flex-direction:column;gap:4px;margin-bottom:7px}
+.fm label{font-family:var(--font-mono);font-size:.55rem;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--text-muted)}
+.fm input,.fm select{
+  background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  font-family:var(--font-mono);font-size:.7rem;padding:5px 8px;border-radius:3px;
+  outline:none;width:100%}
+.fm input:focus{border-color:var(--accent)}
+.fm select{cursor:pointer}
+.tfilter{display:flex;flex-wrap:wrap;gap:3px}
+.tt{display:inline-block;padding:2px 6px;border-radius:2px;font-family:var(--font-mono);
+  font-size:.57rem;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;transition:.12s}
+.tt:hover,.tt.on{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.exp-btn{
+  display:block;width:100%;font-family:var(--font-kr);font-size:.7rem;font-weight:500;
+  padding:7px 10px;border-radius:3px;cursor:pointer;transition:.15s;
+  background:transparent;text-align:left;border:1px solid var(--border);color:var(--text-dim);
+  margin-bottom:5px}
+.exp-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.exp-btn.pdf:hover{border-color:var(--orange);color:var(--orange);background:rgba(255,149,32,.06)}
+.exp-btn.md:hover{border-color:var(--green);color:var(--green);background:var(--green-dim)}
+
+/* ─── MODAL ──────────────────────────────── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:400;
+  display:none;align-items:center;justify-content:center;backdrop-filter:blur(5px)}
+.overlay.on{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:5px;
+  width:min(700px,96vw);max-height:92vh;overflow-y:auto;
+  box-shadow:0 0 80px rgba(0,0,0,.9);animation:mIn .2s ease}
+@keyframes mIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.modal.sm{width:min(440px,96vw)}
+.mhdr{padding:14px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10;background:var(--surface)}
+.mtitle{font-family:var(--font-mono);font-weight:700;font-size:.95rem;color:var(--accent)}
+.mclose{margin-left:auto;background:none;border:1px solid var(--border);color:var(--text-muted);
+  width:24px;height:24px;border-radius:3px;cursor:pointer;font-size:.85rem;transition:.15s}
+.mclose:hover{border-color:var(--red);color:var(--red)}
+.mbody{padding:18px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ff{grid-column:1/-1}
+.f{display:flex;flex-direction:column;gap:4px}
+.f label{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--text-muted)}
+.f label .req{color:var(--red)}
+.f input,.f select,.f textarea{
+  background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  font-family:var(--font-kr);font-size:.75rem;padding:7px 9px;border-radius:3px;
+  outline:none;transition:.15s;resize:vertical}
+.f input:focus,.f textarea:focus{border-color:var(--accent)}
+.f select{cursor:pointer;font-family:var(--font-mono);font-size:.72rem}
+.f select option{background:var(--surface2)}
+.mftr{padding:11px 18px;border-top:1px solid var(--border);
+  display:flex;justify-content:flex-end;gap:7px}
+.mbtn{font-family:var(--font-kr);font-weight:600;font-size:.72rem;
+  padding:7px 16px;border-radius:3px;border:none;cursor:pointer;transition:.18s}
+.mbtn-p{background:var(--green);color:#000}
+.mbtn-p:hover{background:#5fffa8}
+.mbtn-g{background:transparent;border:1px solid var(--border);color:var(--text-dim)}
+.mbtn-g:hover{border-color:var(--text-dim);color:var(--text)}
+
+/* image upload */
+.img-zone{border:2px dashed var(--border2);border-radius:3px;padding:12px;
+  text-align:center;cursor:pointer;transition:.2s;color:var(--text-muted);font-size:.74rem;margin-top:4px}
+.img-zone:hover{border-color:var(--accent);color:var(--accent)}
+.img-zone input{display:none}
+.prev-imgs{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.prev-img{position:relative;width:64px;height:48px;border-radius:3px;
+  overflow:hidden;border:1px solid var(--border)}
+.prev-img img{width:100%;height:100%;object-fit:cover}
+.prev-img .rm{position:absolute;top:1px;right:1px;background:rgba(0,0,0,.75);
+  color:var(--red);border:none;cursor:pointer;border-radius:2px;
+  width:13px;height:13px;font-size:.5rem;display:flex;align-items:center;justify-content:center}
+
+/* report */
+.rout{background:var(--bg);border:1px solid var(--border);border-radius:3px;
+  padding:16px;font-family:var(--font-mono);font-size:.7rem;
+  white-space:pre-wrap;line-height:1.8;color:var(--text-dim);max-height:450px;overflow-y:auto}
+.rout .rt{color:var(--green);font-size:.9rem;font-weight:700}
+.rout .rs{color:var(--accent)}
+.rout .ri{color:#ff9999}
+
+/* lightbox */
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:600;
+  display:none;align-items:center;justify-content:center;cursor:zoom-out}
+.lb.on{display:flex}
+.lb img{max-width:90vw;max-height:90vh;border-radius:4px;border:1px solid var(--border2)}
+
+/* ─── CACHE WARNING POPUP ─── */
+.warn-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:800;
+  display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);
+  animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.warn-box{
+  background:var(--surface);border:1px solid rgba(255,149,32,.5);border-radius:6px;
+  width:min(520px,92vw);box-shadow:0 0 60px rgba(255,149,32,.15),0 0 120px rgba(0,0,0,.8);
+  animation:slideUp .3s ease;overflow:hidden;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.warn-top{
+  background:linear-gradient(135deg,rgba(255,149,32,.12),rgba(255,64,96,.08));
+  border-bottom:1px solid rgba(255,149,32,.3);
+  padding:20px 22px 16px;display:flex;align-items:flex-start;gap:14px;
+}
+.warn-icon{font-size:2rem;flex-shrink:0;margin-top:2px;filter:drop-shadow(0 0 8px #ff9520)}
+.warn-heading{font-family:var(--font-mono);font-weight:700;font-size:.95rem;
+  color:var(--orange);letter-spacing:.06em;margin-bottom:6px}
+.warn-sub{font-size:.78rem;color:var(--text-dim);line-height:1.6}
+.warn-sub strong{color:var(--text)}
+.warn-body{padding:18px 22px}
+.warn-steps{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.warn-steps li{
+  display:flex;align-items:flex-start;gap:10px;
+  font-size:.78rem;color:var(--text-dim);line-height:1.55;
+}
+.warn-steps li .step-num{
+  flex-shrink:0;width:20px;height:20px;border-radius:50%;
+  background:rgba(255,149,32,.15);border:1px solid rgba(255,149,32,.4);
+  color:var(--orange);font-family:var(--font-mono);font-size:.62rem;
+  display:flex;align-items:center;justify-content:center;margin-top:1px;
+}
+.warn-steps li strong{color:var(--text)}
+.warn-highlight{
+  background:rgba(57,255,154,.06);border:1px solid rgba(57,255,154,.2);
+  border-radius:3px;padding:10px 14px;
+  font-size:.76rem;color:var(--text-dim);line-height:1.6;margin-bottom:16px;
+}
+.warn-highlight strong{color:var(--green)}
+.warn-footer{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.warn-check-label{display:flex;align-items:center;gap:7px;
+  font-size:.73rem;color:var(--text-muted);cursor:pointer;user-select:none}
+.warn-check-label input{accent-color:var(--orange);width:14px;height:14px;cursor:pointer}
+.warn-ok-btn{
+  margin-left:auto;font-family:var(--font-kr);font-weight:700;font-size:.78rem;
+  padding:9px 24px;border-radius:3px;border:none;cursor:pointer;
+  background:var(--orange);color:#000;transition:.18s;
+}
+.warn-ok-btn:hover{background:#ffb040;box-shadow:0 0 16px rgba(255,149,32,.4)}
+
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:#253040}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">BLUE<em>TEAM</em></div>
+  <div class="logo-sub">THREAT HUNT</div>
+  <div class="hdr-course">Elasticsearch Threat Hunting · <span id="hdrIncId">인시던트를 선택하세요</span></div>
+  <div class="hdr-right">
+    <div class="sev-badge" id="sevBadge"></div>
+    <button class="hdr-btn primary" id="rptBtn" style="display:none" onclick="openReport()">⬡ 보고서 생성</button>
+  </div>
+</div>
+
+<div class="body">
+  <!-- LEFT NAV -->
+  <aside class="leftnav">
+    <!-- IR 인시던트 목록 -->
+    <div class="nav-section" style="border-bottom:none;flex:1;display:flex;flex-direction:column;overflow:hidden;padding-bottom:0">
+      <div class="nav-label" style="padding:10px 4px 6px">IR 인시던트</div>
+      <div class="inc-list" id="incList"></div>
+      <button class="inc-new-btn" onclick="openNewInc()">+ 새 인시던트</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- TIMELINE -->
+    <div class="tl-col">
+      <div class="toolbar" id="toolbar" style="display:none">
+        <button class="btn btn-p" onclick="openAddStage()">+ Stage 추가</button>
+        <div class="search-wrap">
+          <span class="si">🔍</span>
+          <input type="text" id="searchBox" placeholder="검색 (IOC, technique, host…)" oninput="renderTL()"/>
+        </div>
+        <button class="btn btn-g" onclick="sortStages()">⇅ 시간순</button>
+        <button class="btn btn-d" onclick="clearStages()">✕ 전체 삭제</button>
+      </div>
+
+      <div class="tl-wrap" id="tlWrap">
+        <div class="state-empty" id="stateNone">
+          <span class="ico">◈</span>
+          왼쪽에서 인시던트를 선택하거나<br>새로 만드세요
+          <button class="btn btn-p" style="margin-top:8px;font-size:.72rem" onclick="openNewInc()">+ 새 인시던트</button>
+        </div>
+        <div class="state-empty" id="stateEmpty" style="display:none">
+          <span class="ico">⬡</span>
+          Stage가 없습니다<br>
+          <span style="font-size:.68rem">"+ Stage 추가"로 공격 체인을 재구성하세요</span>
+        </div>
+        <div class="tl-rail" id="tlRail" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDEBAR -->
+    <div class="rsb" id="rsb">
+      <div id="rsbNone" style="color:var(--text-muted);font-size:.72rem;text-align:center;padding:18px;opacity:.5;line-height:1.7">
+        인시던트를 선택하면<br>정보가 표시됩니다
+      </div>
+      <div id="rsbMain" style="display:none">
+        <!-- Stats -->
+        <div class="rsb-sec">
+          <div class="rsb-lbl">Statistics</div>
+          <div class="stat-row"><span>Total Stages</span><strong id="stStages">0</strong></div>
+          <div class="stat-row"><span>IOC Count</span><strong id="stIocs">0</strong></div>
+          <div class="stat-row"><span>Users Involved</span><strong id="stUsers">0</strong></div>
+          <div class="stat-row"><span>Assets Hit</span><strong id="stAssets">0</strong></div>
+          <div class="stat-row"><span>Duration</span><strong id="stDur">—</strong></div>
+        </div>
+        <!-- Meta -->
+        <div class="rsb-sec">
+          <div class="rsb-lbl">Incident Meta</div>
+          <div class="fm"><label>Incident ID</label>
+            <input id="mId" type="text" placeholder="INC-2026-0001" oninput="saveMeta()"/></div>
+          <div class="fm"><label>Analyst</label>
+            <input id="mAnalyst" type="text" placeholder="analyst@corp.com" oninput="saveMeta()"/></div>
+          <div class="fm"><label>Severity</label>
+            <select id="mSev" onchange="saveMeta()">
+              <option>CRITICAL</option><option selected>HIGH</option>
+              <option>MEDIUM</option><option>LOW</option><option>INFORMATIONAL</option>
+            </select></div>
+        </div>
+        <!-- Tactic Filter -->
+        <div class="rsb-sec">
+          <div class="rsb-lbl">Tactic Filter</div>
+          <div class="tfilter" id="tacFilter">
+            <span class="tt on" onclick="setFilter('all',this)">ALL</span>
+          </div>
+        </div>
+        <!-- Export -->
+        <div class="rsb-sec" style="border:none">
+          <div class="rsb-lbl">Export</div>
+          <button class="exp-btn" onclick="openReport()">⬡ 보고서 미리보기</button>
+          <button class="exp-btn md" onclick="exportMD()">⬇ Markdown (.md)</button>
+          <button class="exp-btn pdf" onclick="exportPDF()">⬇ PDF 다운로드</button>
+          <button class="exp-btn" onclick="exportJSON()">⬇ JSON</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ADD / EDIT STAGE MODAL ─── -->
+<div class="overlay" id="stageModal">
+  <div class="modal">
+    <div class="mhdr">
+      <div class="mtitle" id="mTitle">+ Add Stage</div>
+      <button class="mclose" onclick="closeM('stageModal')">✕</button>
+    </div>
+    <div class="mbody">
+      <div class="fg">
+        <div class="f ff"><label>Title <span class="req">*</span></label>
+          <input id="fTitle" type="text" placeholder="예: Phishing email delivered to jsmith"/></div>
+        <div class="f ff"><label>Description <span class="req">*</span></label>
+          <textarea id="fDesc" rows="3" placeholder="공격자 행동 설명, 증거, 영향…"></textarea></div>
+        <div class="f"><label>Timestamp <span class="req">*</span></label>
+          <input id="fTs" type="datetime-local"/></div>
+        <div class="f"><label>Tactic <span class="req">*</span></label>
+          <select id="fTactic" onchange="loadTechs()">
+            <option value="">— Select Tactic —</option>
+            <option>Initial Access</option><option>Execution</option>
+            <option>Persistence</option><option>Privilege Escalation</option>
+            <option>Defense Evasion</option><option>Credential Access</option>
+            <option>Discovery</option><option>Lateral Movement</option>
+            <option>Collection</option><option>Exfiltration</option>
+            <option>Command & Control</option><option>Impact</option>
+          </select></div>
+        <div class="f"><label>Technique <span class="req">*</span></label>
+          <select id="fTech"><option value="">— Select Tactic first —</option></select></div>
+        <div class="f"><label>User</label>
+          <input id="fUser" type="text" placeholder="예: jsmith@corp.com"/></div>
+        <div class="f"><label>Asset Type</label>
+          <select id="fAsset">
+            <option>Workstation</option><option>Server</option>
+            <option>Domain Controller</option><option>Email Gateway</option>
+            <option>Firewall</option><option>VPN</option>
+            <option>Cloud Instance</option><option>Database</option>
+            <option>Network Device</option><option>Other</option>
+          </select></div>
+        <div class="f ff"><label>Asset Hostname / IP</label>
+          <input id="fHost" type="text" placeholder="예: WS-JSMITH  /  10.10.1.42"/></div>
+        <div class="f ff"><label>IOC List <span style="color:var(--text-muted);font-size:.6em">(한 줄에 하나)</span></label>
+          <textarea id="fIoc" rows="4" placeholder="192.168.45.69&#10;http://evil.example.com/payload.exe&#10;SHA256:abc123…"></textarea></div>
+        <div class="f ff"><label>SIEM Query Reference</label>
+          <input id="fSiem" type="text" placeholder="예: index=windows EventCode=4688 CommandLine=*powershell*"/></div>
+        <div class="f ff"><label>Evidence Images</label>
+          <div class="img-zone" onclick="document.getElementById('imgIn').click()">
+            🖼 클릭하여 스크린샷 업로드 (PNG · JPG · GIF)
+            <input type="file" id="imgIn" multiple accept="image/*" onchange="handleImgs(event)"/>
+          </div>
+          <div class="prev-imgs" id="prevImgs"></div>
+        </div>
+      </div>
+    </div>
+    <div class="mftr">
+      <button class="mbtn mbtn-g" onclick="closeM('stageModal')">취소</button>
+      <button class="mbtn mbtn-p" onclick="saveStage()">Save to Timeline</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── NEW INCIDENT MODAL ─── -->
+<div class="overlay" id="newIncModal">
+  <div class="modal sm">
+    <div class="mhdr">
+      <div class="mtitle">New Incident</div>
+      <button class="mclose" onclick="closeM('newIncModal')">✕</button>
+    </div>
+    <div class="mbody" style="display:flex;flex-direction:column;gap:10px">
+      <div class="f"><label>Incident ID <span class="req">*</span></label>
+        <input id="nId" type="text" placeholder="INC-2026-0001"/></div>
+      <div class="f"><label>제목 <span class="req">*</span></label>
+        <input id="nTitle" type="text" placeholder="예: Ransomware — Finance Dept"/></div>
+      <div class="f"><label>Analyst</label>
+        <input id="nAnalyst" type="text" placeholder="analyst@corp.com"/></div>
+      <div class="f"><label>Severity</label>
+        <select id="nSev">
+          <option>CRITICAL</option><option selected>HIGH</option>
+          <option>MEDIUM</option><option>LOW</option><option>INFORMATIONAL</option>
+        </select></div>
+    </div>
+    <div class="mftr">
+      <button class="mbtn mbtn-g" onclick="closeM('newIncModal')">취소</button>
+      <button class="mbtn mbtn-p" onclick="createInc()">생성</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── REPORT MODAL ─── -->
+<div class="overlay" id="rptModal">
+  <div class="modal" style="width:min(800px,96vw)">
+    <div class="mhdr">
+      <div class="mtitle">⬡ Incident Report</div>
+      <button class="mclose" onclick="closeM('rptModal')">✕</button>
+    </div>
+    <div class="mbody">
+      <div style="display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+        <button class="mbtn mbtn-p" onclick="copyRpt()">복사</button>
+        <button class="mbtn" style="background:transparent;border:1px solid var(--green);color:var(--green);font-family:var(--font-kr);font-size:.72rem;padding:7px 16px;border-radius:3px;cursor:pointer" onclick="exportMD()">Markdown</button>
+        <button class="mbtn" style="background:transparent;border:1px solid var(--orange);color:var(--orange);font-family:var(--font-kr);font-size:.72rem;padding:7px 16px;border-radius:3px;cursor:pointer" onclick="exportPDF()">PDF</button>
+        <button class="mbtn mbtn-g" onclick="exportJSON()">JSON</button>
+        <span id="cpDone" style="color:var(--green);font-size:.7rem;display:none">✓ 복사됨!</span>
+      </div>
+      <div class="rout" id="rOut"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lb" id="lb" onclick="this.classList.remove('on')">
+  <img id="lbImg" src="" alt=""/>
+</div>
+
+<script>
+// ════════════════════════════
+//  TECHNIQUES MAP
+// ════════════════════════════
+const TECHS = {
+  'Initial Access':['T1566 – Phishing','T1566.001 – Spearphishing Attachment','T1566.002 – Spearphishing Link','T1190 – Exploit Public-Facing Application','T1133 – External Remote Services','T1078 – Valid Accounts','T1195 – Supply Chain Compromise'],
+  'Execution':['T1059 – Command and Scripting Interpreter','T1059.001 – PowerShell','T1059.003 – Windows Command Shell','T1059.007 – JavaScript','T1053 – Scheduled Task/Job','T1047 – WMI','T1204 – User Execution','T1203 – Exploitation for Client Execution','T1106 – Native API'],
+  'Persistence':['T1053.005 – Scheduled Task','T1547 – Boot/Logon Autostart Execution','T1543 – Create or Modify System Process','T1136 – Create Account','T1505 – Server Software Component','T1098 – Account Manipulation','T1574 – Hijack Execution Flow','T1078 – Valid Accounts'],
+  'Privilege Escalation':['T1548 – Abuse Elevation Control Mechanism','T1068 – Exploitation for Privilege Escalation','T1134 – Access Token Manipulation','T1611 – Escape to Host','T1078.003 – Local Accounts','T1484 – Domain Policy Modification'],
+  'Defense Evasion':['T1070 – Indicator Removal','T1055 – Process Injection','T1036 – Masquerading','T1562 – Impair Defenses','T1027 – Obfuscated Files or Information','T1218 – System Binary Proxy Execution','T1112 – Modify Registry','T1553 – Subvert Trust Controls'],
+  'Credential Access':['T1110 – Brute Force','T1003 – OS Credential Dumping','T1003.001 – LSASS Memory','T1555 – Credentials from Password Stores','T1539 – Steal Web Session Cookie','T1558 – Steal or Forge Kerberos Tickets','T1552 – Unsecured Credentials'],
+  'Discovery':['T1087 – Account Discovery','T1083 – File and Directory Discovery','T1046 – Network Service Discovery','T1135 – Network Share Discovery','T1057 – Process Discovery','T1018 – Remote System Discovery','T1082 – System Information Discovery'],
+  'Lateral Movement':['T1021 – Remote Services','T1021.001 – Remote Desktop Protocol (RDP)','T1021.002 – SMB/Windows Admin Shares','T1550 – Use Alternate Authentication Material','T1080 – Taint Shared Content','T1534 – Internal Spearphishing'],
+  'Collection':['T1005 – Data from Local System','T1039 – Data from Network Shared Drive','T1074 – Data Staged','T1114 – Email Collection','T1560 – Archive Collected Data','T1113 – Screen Capture','T1056 – Input Capture'],
+  'Exfiltration':['T1041 – Exfiltration Over C2 Channel','T1048 – Exfiltration Over Alternative Protocol','T1567 – Exfiltration Over Web Service','T1052 – Exfiltration Over Physical Medium','T1029 – Scheduled Transfer'],
+  'Command & Control':['T1071 – Application Layer Protocol','T1071.001 – Web Protocols','T1071.004 – DNS','T1090 – Proxy','T1573 – Encrypted Channel','T1008 – Fallback Channels','T1105 – Ingress Tool Transfer'],
+  'Impact':['T1486 – Data Encrypted for Impact','T1485 – Data Destruction','T1499 – Endpoint Denial of Service','T1491 – Defacement','T1490 – Inhibit System Recovery','T1489 – Service Stop'],
+};
+
+const DOT = {
+  'Initial Access':'dot-ia','Execution':'dot-ex','Persistence':'dot-pe',
+  'Privilege Escalation':'dot-pr','Defense Evasion':'dot-de','Credential Access':'dot-ca',
+  'Discovery':'dot-di','Lateral Movement':'dot-lm','Collection':'dot-co',
+  'Exfiltration':'dot-ef','Command & Control':'dot-c2','Impact':'dot-im',
+};
+
+// ════════════════════════════
+//  STATE
+// ════════════════════════════
+let DB = JSON.parse(localStorage.getItem('bt_db')||'null') || {incidents:[],cur:null};
+let editId = null;
+let filterVal = 'all';
+let pendImgs = [];
+
+const save = () => localStorage.setItem('bt_db', JSON.stringify(DB));
+const cur  = () => DB.incidents.find(i=>i.id===DB.cur)||null;
+const esc  = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+// ════════════════════════════
+//  BOOT
+// ════════════════════════════
+function init(){
+  renderIncList();
+  if(DB.cur) selectInc(DB.cur);
+  else showEmpty();
+}
+
+// ════════════════════════════
+//  INCIDENTS
+// ════════════════════════════
+function renderIncList(){
+  const el = document.getElementById('incList');
+  if(!DB.incidents.length){
+    el.innerHTML='<div style="color:var(--text-muted);font-size:.68rem;text-align:center;padding:12px;opacity:.55;line-height:1.7">인시던트 없음<br>아래 버튼으로 추가하세요</div>';
+    return;
+  }
+  el.innerHTML = DB.incidents.map(inc=>{
+    const n = (inc.stages||[]).length;
+    const act = inc.id===DB.cur?'active':'';
+    return `<div class="inc-card ${act}" onclick="selectInc('${inc.id}')">
+      <div class="ic-id">${esc(inc.incId||inc.id)}</div>
+      <div class="ic-title">${esc(inc.title)}</div>
+      <div class="ic-meta">
+        <span class="ic-sev ${inc.sev}">${inc.sev}</span>
+        <span class="ic-cnt">${n} stage${n!==1?'s':''}</span>
+        <button class="ic-del" onclick="event.stopPropagation();delInc('${inc.id}')" title="삭제">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectInc(id){
+  DB.cur = id; save();
+  const inc = cur(); if(!inc) return;
+  document.getElementById('stateNone').style.display='none';
+  document.getElementById('toolbar').style.display='';
+  document.getElementById('rsbNone').style.display='none';
+  document.getElementById('rsbMain').style.display='';
+  document.getElementById('rptBtn').style.display='';
+  document.getElementById('sevBadge').style.display='';
+  document.getElementById('mId').value = inc.incId||'';
+  document.getElementById('mAnalyst').value = inc.analyst||'';
+  document.getElementById('mSev').value = inc.sev||'HIGH';
+  updateHeader(false);
+  renderTL(); updateStats(); buildTacFilter();
+  renderIncList();
+}
+
+function showEmpty(){
+  document.getElementById('stateNone').style.display='';
+  document.getElementById('stateEmpty').style.display='none';
+  document.getElementById('tlRail').style.display='none';
+  document.getElementById('toolbar').style.display='none';
+  document.getElementById('rsbNone').style.display='';
+  document.getElementById('rsbMain').style.display='none';
+  document.getElementById('rptBtn').style.display='none';
+  document.getElementById('sevBadge').style.display='none';
+  document.getElementById('hdrIncId').textContent='인시던트를 선택하세요';
+  renderIncList();
+}
+
+function openNewInc(){
+  const n = DB.incidents.length+1;
+  document.getElementById('nId').value = 'INC-2026-'+String(n).padStart(4,'0');
+  document.getElementById('nTitle').value='';
+  document.getElementById('nAnalyst').value='';
+  document.getElementById('nSev').value='HIGH';
+  document.getElementById('newIncModal').classList.add('on');
+}
+
+function createInc(){
+  const id = document.getElementById('nId').value.trim();
+  const title = document.getElementById('nTitle').value.trim();
+  if(!id||!title){alert('Incident ID와 제목은 필수입니다.');return;}
+  const inc={id:Date.now()+'',incId:id,title,analyst:document.getElementById('nAnalyst').value.trim(),
+    sev:document.getElementById('nSev').value,stages:[]};
+  DB.incidents.push(inc); save();
+  closeM('newIncModal'); selectInc(inc.id);
+}
+
+function delInc(id){
+  if(!confirm('이 Incident와 모든 Stage를 삭제할까요?')) return;
+  DB.incidents = DB.incidents.filter(i=>i.id!==id);
+  if(DB.cur===id) DB.cur = DB.incidents.length?DB.incidents[0].id:null;
+  save();
+  if(DB.cur) selectInc(DB.cur); else showEmpty();
+}
+
+// ════════════════════════════
+//  META
+// ════════════════════════════
+function saveMeta(){ updateHeader(true); }
+
+function updateHeader(write=true){
+  const inc=cur(); if(!inc) return;
+  const id = document.getElementById('mId').value||'UNKNOWN';
+  const sev = document.getElementById('mSev').value;
+  if(write){
+    inc.incId=id;
+    inc.analyst=document.getElementById('mAnalyst').value;
+    inc.sev=sev;
+    save(); renderIncList();
+  }
+  document.getElementById('hdrIncId').textContent=id;
+  const badge=document.getElementById('sevBadge');
+  badge.textContent='SEV: '+sev;
+  const C={CRITICAL:'#ff4060',HIGH:'#ff9520',MEDIUM:'#ffd060',LOW:'#39ff9a',INFORMATIONAL:'#00e5ff'};
+  badge.style.borderColor=badge.style.color=C[sev]||'var(--accent)';
+}
+
+// ════════════════════════════
+//  TECHNIQUE DROPDOWN
+// ════════════════════════════
+function loadTechs(){
+  const t=document.getElementById('fTactic').value;
+  const s=document.getElementById('fTech');
+  s.innerHTML='';
+  if(!t){s.innerHTML='<option value="">— Select Tactic first —</option>';return;}
+  (TECHS[t]||[]).forEach(v=>{const o=document.createElement('option');o.value=o.textContent=v;s.appendChild(o);});
+}
+
+// ════════════════════════════
+//  IMAGES
+// ════════════════════════════
+function handleImgs(e){
+  Array.from(e.target.files).forEach(f=>{
+    const r=new FileReader();
+    r.onload=ev=>{ pendImgs.push({name:f.name,dataUrl:ev.target.result}); renderPrev(); };
+    r.readAsDataURL(f);
+  });
+  e.target.value='';
+}
+function renderPrev(){
+  document.getElementById('prevImgs').innerHTML=pendImgs.map((img,i)=>`
+    <div class="prev-img"><img src="${img.dataUrl}" alt="${esc(img.name)}"/>
+    <button class="rm" onclick="pendImgs.splice(${i},1);renderPrev()">✕</button></div>`).join('');
+}
+
+// ════════════════════════════
+//  STAGE MODAL
+// ════════════════════════════
+function openAddStage(){
+  if(!cur()){alert('인시던트를 먼저 선택하세요.');return;}
+  editId=null; pendImgs=[];
+  document.getElementById('mTitle').textContent='+ Add Stage';
+  ['fTitle','fDesc','fUser','fHost','fIoc','fSiem'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fTs').value=new Date().toISOString().slice(0,16);
+  document.getElementById('fTactic').value='';
+  document.getElementById('fTech').innerHTML='<option value="">— Select Tactic first —</option>';
+  document.getElementById('fAsset').value='Workstation';
+  renderPrev();
+  document.getElementById('stageModal').classList.add('on');
+}
+
+function openEditStage(id){
+  const inc=cur(); if(!inc) return;
+  const s=inc.stages.find(x=>x.id===id); if(!s) return;
+  editId=id; pendImgs=(s.images||[]).map(x=>({...x}));
+  document.getElementById('mTitle').textContent='✎ Edit Stage';
+  document.getElementById('fTitle').value=s.title;
+  document.getElementById('fDesc').value=s.desc;
+  document.getElementById('fTs').value=s.ts;
+  document.getElementById('fTactic').value=s.tactic; loadTechs();
+  document.getElementById('fTech').value=s.technique;
+  document.getElementById('fUser').value=s.user||'';
+  document.getElementById('fAsset').value=s.asset||'Workstation';
+  document.getElementById('fHost').value=s.host||'';
+  document.getElementById('fIoc').value=(s.iocs||[]).join('\n');
+  document.getElementById('fSiem').value=s.siem||'';
+  renderPrev();
+  document.getElementById('stageModal').classList.add('on');
+}
+
+function closeM(id){document.getElementById(id).classList.remove('on')}
+
+function saveStage(){
+  const inc=cur(); if(!inc) return;
+  const title=document.getElementById('fTitle').value.trim();
+  const desc=document.getElementById('fDesc').value.trim();
+  const ts=document.getElementById('fTs').value;
+  const tactic=document.getElementById('fTactic').value;
+  const technique=document.getElementById('fTech').value;
+  if(!title||!desc||!ts||!tactic||!technique){alert('필수 항목을 모두 입력하세요.');return;}
+  const stage={
+    id:editId||(Date.now()+''),title,desc,ts,tactic,technique,
+    user:document.getElementById('fUser').value.trim(),
+    asset:document.getElementById('fAsset').value,
+    host:document.getElementById('fHost').value.trim(),
+    iocs:document.getElementById('fIoc').value.split('\n').map(x=>x.trim()).filter(Boolean),
+    siem:document.getElementById('fSiem').value.trim(),
+    images:[...pendImgs],
+  };
+  if(editId){ const idx=inc.stages.findIndex(x=>x.id===editId); inc.stages[idx]=stage; }
+  else inc.stages.push(stage);
+  save(); closeM('stageModal'); renderTL(); updateStats(); buildTacFilter();
+}
+
+function delStage(id){
+  const inc=cur(); if(!inc) return;
+  if(!confirm('이 Stage를 삭제할까요?')) return;
+  inc.stages=inc.stages.filter(x=>x.id!==id);
+  save(); renderTL(); updateStats(); buildTacFilter();
+}
+
+function delStageImg(sid,idx){
+  const inc=cur(); if(!inc) return;
+  const s=inc.stages.find(x=>x.id===sid); if(!s) return;
+  s.images.splice(idx,1); save(); renderTL();
+}
+
+// ════════════════════════════
+//  TIMELINE RENDER
+// ════════════════════════════
+function renderTL(){
+  const inc=cur();
+  const rail=document.getElementById('tlRail');
+  const empty=document.getElementById('stateEmpty');
+  if(!inc){rail.style.display='none';empty.style.display='none';return;}
+  const q=(document.getElementById('searchBox').value||'').toLowerCase();
+  let list=[...inc.stages].sort((a,b)=>a.ts.localeCompare(b.ts));
+  if(filterVal!=='all') list=list.filter(s=>s.tactic===filterVal);
+  if(q) list=list.filter(s=>
+    s.title.toLowerCase().includes(q)||s.desc.toLowerCase().includes(q)||
+    (s.user||'').toLowerCase().includes(q)||(s.iocs||[]).join(' ').toLowerCase().includes(q)||
+    (s.host||'').toLowerCase().includes(q));
+  if(!list.length){rail.style.display='none';empty.style.display='flex';return;}
+  empty.style.display='none'; rail.style.display='block';
+  rail.innerHTML=list.map((s,i)=>{
+    const ts=s.ts?new Date(s.ts).toLocaleString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}):'—';
+    const dot=DOT[s.tactic]||'';
+    const iocsH=s.iocs&&s.iocs.length?`
+      <div class="ioc-blk">
+        <div class="ioc-lbl">⚠ IOC (${s.iocs.length})</div>
+        <div class="ioc-list">${s.iocs.map(io=>`<div>${esc(io)}</div>`).join('')}</div>
+      </div>`:'';
+    const siemH=s.siem?`<div class="siem-ref">📋 SIEM: ${esc(s.siem)}</div>`:'';
+    const imgH=s.images&&s.images.length?`
+      <div class="card-imgs">${s.images.map((img,idx)=>`
+        <div class="ci-wrap" onclick="openLB('${s.id}',${idx})">
+          <img src="${img.dataUrl}" alt="${esc(img.name)}"/>
+          <button class="ci-del" onclick="event.stopPropagation();delStageImg('${s.id}',${idx})">✕</button>
+        </div>`).join('')}
+      </div>`:'';
+    return `<div class="sc">
+      <div class="sc-dot ${dot}"></div>
+      <div class="sc-inner">
+        <div class="sc-head">
+          <span class="sc-num">STAGE ${i+1}</span>
+          <span class="sc-title">${esc(s.title)}</span>
+          <div class="sc-acts">
+            <button class="ib" onclick="openEditStage('${s.id}')">✎ Edit</button>
+            <button class="ib del" onclick="delStage('${s.id}')">✕</button>
+          </div>
+        </div>
+        <div class="sc-ts">⏱ ${ts}</div>
+        <div class="sc-desc">${esc(s.desc)}</div>
+        <div class="sc-pills">
+          <span class="pill pt">${esc(s.tactic)}</span>
+          <span class="pill pk">${esc(s.technique)}</span>
+          ${s.user?`<span class="pill pu">👤 ${esc(s.user)}</span>`:''}
+          <span class="pill pa">🖥 ${esc(s.asset)}${s.host?' · '+esc(s.host):''}</span>
+        </div>
+        ${iocsH}${siemH}${imgH}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openLB(sid,idx){
+  const inc=cur(); if(!inc) return;
+  const s=inc.stages.find(x=>x.id===sid); if(!s||!s.images) return;
+  document.getElementById('lbImg').src=s.images[idx].dataUrl;
+  document.getElementById('lb').classList.add('on');
+}
+
+// ════════════════════════════
+//  STATS
+// ════════════════════════════
+function updateStats(){
+  const inc=cur(); if(!inc) return;
+  const stg=inc.stages||[];
+  document.getElementById('stStages').textContent=stg.length;
+  document.getElementById('stIocs').textContent=stg.flatMap(s=>s.iocs||[]).length;
+  document.getElementById('stUsers').textContent=[...new Set(stg.map(s=>s.user).filter(Boolean))].length;
+  document.getElementById('stAssets').textContent=[...new Set(stg.map(s=>s.host||s.asset).filter(Boolean))].length;
+  if(stg.length>=2){
+    const so=[...stg].sort((a,b)=>a.ts.localeCompare(b.ts));
+    const d=Math.abs(new Date(so[so.length-1].ts)-new Date(so[0].ts));
+    document.getElementById('stDur').textContent=`${Math.floor(d/3600000)}h ${Math.floor((d%3600000)/60000)}m`;
+  } else document.getElementById('stDur').textContent='—';
+}
+
+// ════════════════════════════
+//  TACTIC FILTER
+// ════════════════════════════
+function buildTacFilter(){
+  const inc=cur(); if(!inc) return;
+  const tactics=[...new Set((inc.stages||[]).map(s=>s.tactic).filter(Boolean))];
+  const el=document.getElementById('tacFilter');
+  el.innerHTML=`<span class="tt ${filterVal==='all'?'on':''}" onclick="setFilter('all',this)">ALL</span>`;
+  tactics.forEach(t=>{
+    const sp=document.createElement('span');
+    sp.className='tt'+(filterVal===t?' on':'');
+    sp.textContent=t.split(' ')[0]; sp.title=t;
+    sp.onclick=()=>setFilter(t,sp);
+    el.appendChild(sp);
+  });
+}
+function setFilter(v,el){
+  filterVal=v;
+  document.querySelectorAll('.tt').forEach(e=>e.classList.remove('on'));
+  el.classList.add('on'); renderTL();
+}
+function sortStages(){const inc=cur();if(!inc)return;inc.stages.sort((a,b)=>a.ts.localeCompare(b.ts));save();renderTL();}
+function clearStages(){const inc=cur();if(!inc)return;if(!confirm('모든 Stage를 삭제할까요?'))return;inc.stages=[];save();renderTL();updateStats();buildTacFilter();}
+
+// ════════════════════════════
+//  REPORT
+// ════════════════════════════
+function openReport(){
+  const inc=cur(); if(!inc) return;
+  const sorted=[...inc.stages].sort((a,b)=>a.ts.localeCompare(b.ts));
+  const allIocs=sorted.flatMap(s=>s.iocs||[]);
+  const now=new Date().toLocaleString('ko-KR');
+  const out=document.getElementById('rOut'); out.innerHTML='';
+  const ln=(t,cls)=>{const d=document.createElement('div');if(cls)d.className=cls;d.textContent=t;out.appendChild(d);};
+  const br=()=>out.appendChild(document.createElement('br'));
+  ln('════════════════════════════════════════════════════════');
+  ln('  INCIDENT RESPONSE REPORT','rt');
+  ln('════════════════════════════════════════════════════════');
+  br();
+  ln(`Incident ID   : ${inc.incId||'—'}`);
+  ln(`Title         : ${inc.title}`);
+  ln(`Report Date   : ${now}`);
+  ln(`Analyst       : ${inc.analyst||'—'}`);
+  ln(`Severity      : ${inc.sev||'HIGH'}`);
+  ln(`Total Stages  : ${sorted.length}`);
+  ln(`Total IOCs    : ${allIocs.length}`);
+  br();
+  ln('━━━ EXECUTIVE SUMMARY ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━','rs'); br();
+  if(sorted.length>=2){
+    const t1=new Date(sorted[0].ts).toLocaleString('ko-KR');
+    const t2=new Date(sorted[sorted.length-1].ts).toLocaleString('ko-KR');
+    ln(`Attack chain reconstructed across ${sorted.length} stages`);
+    ln(`From: ${t1}  →  To: ${t2}`);
+  } else if(sorted.length===1){ln(`Single-stage incident at ${new Date(sorted[0].ts).toLocaleString('ko-KR')}`);}
+  else {ln('No stages recorded.');}
+  br();
+  ln(`MITRE ATT&CK Tactics: ${[...new Set(sorted.map(s=>s.tactic))].join(' | ')}`);
+  br();
+  ln('━━━ ATTACK CHAIN TIMELINE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━','rs'); br();
+  sorted.forEach((s,i)=>{
+    const ts=new Date(s.ts).toLocaleString('ko-KR');
+    ln(`[Stage ${i+1}] ${s.title}`);
+    ln(`  Timestamp  : ${ts}`);
+    ln(`  Tactic     : ${s.tactic}`);
+    ln(`  Technique  : ${s.technique}`);
+    if(s.user) ln(`  User       : ${s.user}`);
+    ln(`  Asset      : ${s.asset}${s.host?' ('+s.host+')':''}`);
+    ln(`  Description: ${s.desc}`);
+    if(s.siem) ln(`  SIEM Query : ${s.siem}`);
+    if(s.iocs&&s.iocs.length){
+      ln('  IOCs:');
+      s.iocs.forEach(io=>{const d=document.createElement('div');d.className='ri';d.textContent=`    • ${io}`;out.appendChild(d);});
+    }
+    if(s.images&&s.images.length) ln(`  Evidence   : ${s.images.length} image(s) attached`);
+    br();
+  });
+  if(allIocs.length){
+    ln('━━━ CONSOLIDATED IOC LIST ━━━━━━━━━━━━━━━━━━━━━━━━━━━','rs'); br();
+    [...new Set(allIocs)].forEach(io=>{const d=document.createElement('div');d.className='ri';d.textContent=`  • ${io}`;out.appendChild(d);});
+    br();
+  }
+  ln('━━━ END OF REPORT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━','rs');
+  ln(`Generated by Blue Team Threat Hunt Console — ${now}`);
+  document.getElementById('rptModal').classList.add('on');
+}
+
+function copyRpt(){
+  navigator.clipboard.writeText(document.getElementById('rOut').innerText).then(()=>{
+    const el=document.getElementById('cpDone'); el.style.display='inline';
+    setTimeout(()=>el.style.display='none',2000);
+  });
+}
+
+// ════════════════════════════
+//  EXPORT: MARKDOWN
+// ════════════════════════════
+function exportMD(){
+  const inc=cur(); if(!inc) return;
+  const sorted=[...inc.stages].sort((a,b)=>a.ts.localeCompare(b.ts));
+  const now=new Date().toLocaleString('ko-KR');
+  let md=`# Incident Report: ${inc.incId||'UNKNOWN'} — ${inc.title}\n\n`;
+  md+=`| Field | Value |\n|---|---|\n`;
+  md+=`| Incident ID | ${inc.incId||'—'} |\n| Severity | ${inc.sev||'HIGH'} |\n`;
+  md+=`| Analyst | ${inc.analyst||'—'} |\n| Report Date | ${now} |\n| Total Stages | ${sorted.length} |\n\n---\n\n`;
+  md+=`## Attack Chain Timeline\n\n`;
+  sorted.forEach((s,i)=>{
+    md+=`### Stage ${i+1}: ${s.title}\n\n`;
+    md+=`- **Timestamp:** ${new Date(s.ts).toLocaleString('ko-KR')}\n`;
+    md+=`- **Tactic:** ${s.tactic}\n- **Technique:** ${s.technique}\n`;
+    if(s.user) md+=`- **User:** ${s.user}\n`;
+    md+=`- **Asset:** ${s.asset}${s.host?' ('+s.host+')':''}\n\n`;
+    md+=`${s.desc}\n\n`;
+    if(s.siem) md+=`> **SIEM Query:** \`${s.siem}\`\n\n`;
+    if(s.iocs&&s.iocs.length){md+=`**IOCs:**\n`;s.iocs.forEach(io=>md+=`- \`${io}\`\n`);md+='\n';}
+    if(s.images&&s.images.length){
+      s.images.forEach((img,idx)=>{ md+=`![Evidence ${idx+1}](${img.dataUrl})\n\n`; });
+    }
+    md+='---\n\n';
+  });
+  const allIocs=[...new Set(sorted.flatMap(s=>s.iocs||[]))];
+  if(allIocs.length){md+=`## Consolidated IOC List\n\n`;allIocs.forEach(io=>md+=`- \`${io}\`\n`);}
+  dl(`IR_${inc.incId||'report'}.md`, md, 'text/markdown');
+}
+
+// ════════════════════════════
+//  EXPORT: PDF
+// ════════════════════════════
+async function exportPDF(){
+  const inc=cur(); if(!inc) return;
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const pw=doc.internal.pageSize.getWidth(), ph=doc.internal.pageSize.getHeight();
+  const mg=16, uw=pw-mg*2;
+  let y=mg;
+
+  const chk=(n=10)=>{ if(y+n>ph-mg){doc.addPage();y=mg;} };
+  const txt=(t,sz=8.5,col=[180,200,215],bold=false,mw=uw)=>{
+    doc.setFontSize(sz);doc.setTextColor(...col);doc.setFont('helvetica',bold?'bold':'normal');
+    doc.splitTextToSize(String(t),mw).forEach(line=>{chk(sz*.4+1.5);doc.text(line,mg,y);y+=sz*.38+1.4;});
+  };
+
+  // bg
+  doc.setFillColor(7,9,13); doc.rect(0,0,pw,ph,'F');
+  // header bar
+  doc.setFillColor(12,15,21); doc.rect(0,0,pw,20,'F');
+  doc.setDrawColor(0,229,255); doc.setLineWidth(.25); doc.line(0,20,pw,20);
+  doc.setFontSize(13);doc.setTextColor(0,229,255);doc.setFont('helvetica','bold');
+  doc.text('BLUETEAM  THREAT HUNT — IR REPORT', mg, 13);
+  doc.setFontSize(7.5);doc.setTextColor(57,255,154);
+  doc.text(inc.incId||'UNKNOWN', pw-mg, 13, {align:'right'});
+  y=28;
+
+  // meta
+  const rows=[['Incident ID',inc.incId||'—'],['Title',inc.title],['Severity',inc.sev||'HIGH'],
+    ['Analyst',inc.analyst||'—'],['Report Date',new Date().toLocaleString('ko-KR')],
+    ['Total Stages',String((inc.stages||[]).length)]];
+  const c=[38,uw-38];
+  rows.forEach(([k,v])=>{
+    chk(7);
+    doc.setFillColor(18,24,34);doc.rect(mg,y-4,c[0],7,'F');
+    doc.setFillColor(10,14,20);doc.rect(mg+c[0],y-4,c[1],7,'F');
+    doc.setFontSize(7);doc.setTextColor(70,95,115);doc.setFont('helvetica','bold');doc.text(k,mg+2,y);
+    doc.setFontSize(7.5);doc.setTextColor(170,195,215);doc.setFont('helvetica','normal');
+    doc.text(doc.splitTextToSize(v,c[1]-4)[0],mg+c[0]+2,y);
+    y+=7;
+  });
+  y+=5;
+
+  const sorted=[...inc.stages].sort((a,b)=>a.ts.localeCompare(b.ts));
+  doc.setDrawColor(0,229,255);doc.setLineWidth(.2);doc.line(mg,y,pw-mg,y);y+=5;
+  txt('ATTACK CHAIN TIMELINE',11,[0,229,255],true); y+=2;
+
+  sorted.forEach((s,i)=>{
+    chk(22);
+    doc.setFillColor(20,26,36);doc.rect(mg,y-4,uw,8,'F');
+    doc.setDrawColor(57,255,154);doc.setLineWidth(.4);doc.line(mg,y-4,mg,y+4);
+    doc.setFontSize(9);doc.setTextColor(57,255,154);doc.setFont('helvetica','bold');
+    doc.text(`[Stage ${i+1}]  ${s.title}`,mg+4,y+.5); y+=9;
+    txt(`${new Date(s.ts).toLocaleString('ko-KR')}  |  ${s.tactic}  |  ${s.technique}`,7.5,[0,180,255]);
+    if(s.user||s.host) txt(`User: ${s.user||'—'}  |  Asset: ${s.asset}${s.host?' ('+s.host+')':''}`,7.5,[170,120,255]);
+    y+=.5; txt(s.desc,8,[155,180,200]);
+    if(s.siem){y+=1;txt(`SIEM: ${s.siem}`,7,[70,95,115]);}
+    if(s.iocs&&s.iocs.length){
+      y+=2;
+      doc.setDrawColor(255,64,96);doc.setLineWidth(.25);
+      doc.line(mg+2,y,mg+2,y+s.iocs.length*4.8+2);
+      s.iocs.forEach(io=>txt(`• ${io}`,7.5,[255,150,150]));
+    }
+    if(s.images&&s.images.length){
+      y+=3; let ix=mg;
+      const iw=40,ih=28,gap=4;
+      for(const img of s.images){
+        if(ix+iw>pw-mg){ix=mg;y+=ih+gap;}
+        chk(ih+4);
+        try{doc.addImage(img.dataUrl,'JPEG',ix,y,iw,ih);}
+        catch(e){try{doc.addImage(img.dataUrl,'PNG',ix,y,iw,ih);}catch(e2){}}
+        ix+=iw+gap;
+      }
+      if(ix>mg) y+=ih+gap;
+    }
+    y+=5;
+    doc.setDrawColor(28,40,54);doc.setLineWidth(.15);doc.line(mg,y,pw-mg,y);y+=4;
+  });
+
+  const allIocs=[...new Set(sorted.flatMap(s=>s.iocs||[]))];
+  if(allIocs.length){
+    chk(12); txt('CONSOLIDATED IOC LIST',10,[0,229,255],true); y+=2;
+    allIocs.forEach(io=>txt(`• ${io}`,8,[255,150,150]));
+  }
+
+  const pc=doc.internal.getNumberOfPages();
+  for(let p=1;p<=pc;p++){
+    doc.setPage(p);
+    doc.setFillColor(7,9,13);doc.rect(0,ph-9,pw,9,'F');
+    doc.setDrawColor(28,40,54);doc.setLineWidth(.15);doc.line(0,ph-9,pw,ph-9);
+    doc.setFontSize(6);doc.setTextColor(50,70,90);
+    doc.text(`Blue Team Threat Hunt Console  ·  ${inc.incId||'UNKNOWN'}  ·  Page ${p}/${pc}`,mg,ph-3.5);
+    doc.text(new Date().toLocaleDateString('ko-KR'),pw-mg,ph-3.5,{align:'right'});
+  }
+  doc.save(`IR_${inc.incId||'report'}.pdf`);
+}
+
+// ════════════════════════════
+//  EXPORT: JSON
+// ════════════════════════════
+function exportJSON(){
+  const inc=cur(); if(!inc) return;
+  dl(`IR_${inc.incId||'report'}.json`,JSON.stringify({incident:inc,exported:new Date().toISOString()},null,2),'application/json');
+}
+
+function dl(name,content,type){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type}));
+  a.download=name; a.click();
+}
+
+// ════════════════════════════
+init();
+</script>
+</body>
+</html>
