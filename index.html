@@ -595,32 +595,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;
 
 .graph-tools{
   display:flex;
-  flex-direction:column;
-  gap:8px;
+  gap:7px;
   margin-bottom:10px;
 }
-.graph-tool-row{
-  display:flex;
-  gap:7px;
-  align-items:center;
-}
-.graph-tool-row input,
-.graph-tool-row select{
-  background:var(--surface2);
-  border:1px solid var(--border);
-  color:var(--text);
-  font-family:var(--font-mono);
-  font-size:.7rem;
-  padding:6px 8px;
-  border-radius:3px;
-}
-.graph-tool-row input{flex:1}
-.graph-link-hint{
-  font-size:.68rem;
-  color:var(--text-muted);
-  white-space:nowrap;
-}
-
 .graph-tools input,
 .graph-tools select{
   background:var(--surface2);
@@ -739,12 +716,6 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;
 .graph-node.note circle{fill:#8fa0b8;stroke:#d0d8e8}
 
 
-.graph-link.shared-entity-link{
-  stroke:#ff9520;
-  stroke-width:1.6;
-  stroke-dasharray:2 3;
-  opacity:.9;
-}
 
 .graph-node.selected circle{
   stroke:#ffffff;
@@ -756,6 +727,29 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;
   stroke-width:1.8;
   stroke-dasharray:4 3;
   opacity:.95;
+}
+
+.graph-link.shared-entity-link{
+  stroke:#ff9520;
+  stroke-width:1.6;
+  stroke-dasharray:2 3;
+  opacity:.9;
+}
+
+.graph-link-label{
+  fill:#ffd060;
+  font-family:var(--font-mono);
+  font-size:8px;
+  paint-order:stroke;
+  stroke:#05070b;
+  stroke-width:3px;
+  stroke-linejoin:round;
+}
+
+.graph-link.manual-link.selected{
+  stroke:#ffffff;
+  stroke-width:2.6;
+  opacity:1;
 }
 
 
@@ -1104,26 +1098,41 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;
     </div>
     <div class="mbody">
       <div class="graph-tools">
-  <div class="graph-tool-row">
-    <select id="graphEntityType">
-      <option value="ioc">IOC</option>
-      <option value="asset">Asset</option>
-      <option value="user">User</option>
-      <option value="technique">Technique</option>
-      <option value="tactic">Tactic</option>
-      <option value="rule">Detection Rule</option>
-      <option value="note">Note</option>
-    </select>
+  <select id="graphEntityType">
+    <option value="ioc">IOC</option>
+    <option value="asset">Asset</option>
+    <option value="user">User</option>
+    <option value="technique">Technique</option>
+    <option value="tactic">Tactic</option>
+    <option value="rule">Detection Rule</option>
+    <option value="note">Note</option>
+  </select>
 
-    <input id="graphEntityLabel" type="text" placeholder="Add entity: evil.example.com / WS-01 / user@corp.local"/>
-    <button class="mbtn mbtn-p" onclick="addGraphEntity()">Add Entity</button>
-  </div>
+  <input id="graphEntityLabel" type="text" placeholder="Entity label"/>
+  <button class="mbtn mbtn-p" id="graphEntitySaveBtn" onclick="saveGraphEntity()">Add Entity</button>
 
-  <div class="graph-tool-row">
-    <input id="graphLinkLabel" type="text" placeholder="Relationship label: related_to / observed_in / same_ioc"/>
-    <button class="mbtn mbtn-g" id="graphLinkBtn" onclick="toggleGraphLinkMode()">Link Mode: OFF</button>
-    <span id="graphLinkHint" class="graph-link-hint">Link Mode를 켠 뒤 노드 2개를 차례로 클릭하세요.</span>
-  </div>
+  <select id="graphRelType" onchange="syncRelCustomInput()">
+    <option value="related_to">related_to</option>
+    <option value="observed_in">observed_in</option>
+    <option value="same_ioc">same_ioc</option>
+    <option value="communicates_with">communicates_with</option>
+    <option value="spawned_by">spawned_by</option>
+    <option value="uses">uses</option>
+    <option value="caused_by">caused_by</option>
+    <option value="custom">Custom</option>
+  </select>
+
+  <input id="graphRelCustom" type="text" placeholder="Custom relationship" style="display:none"/>
+  <button class="mbtn mbtn-p" id="graphRelAddBtn" onclick="addSelectedRelationship()" disabled>
+  Add Relationship
+</button>
+  <button class="mbtn mbtn-g" id="graphRelSaveBtn" onclick="updateSelectedRelationship()" disabled>
+    Update Relationship
+  </button>
+
+  <button class="mbtn mbtn-g" id="graphDeleteBtn" onclick="deleteSelectedGraphItem()" disabled>
+  Remove Selected
+</button>
 </div>
       <div class="graph-legend">
         <span>Stage</span>
@@ -1175,8 +1184,10 @@ let editId = null;
 let filterVal = 'all';
 let pendImgs = [];
 
-let graphLinkMode = false;
 let graphLinkSource = null;
+let graphLinkTarget = null;
+let graphSelectedNode = null;
+let graphSelectedLink = null;
 
 const save = () => localStorage.setItem('bt_db', JSON.stringify(DB));
 const cur = () => DB.incidents.find(i => i.id === DB.cur) || null;
@@ -2378,12 +2389,76 @@ function renderEntityGraph(svgId, inc){
     line.setAttribute('x2', b.x);
     line.setAttribute('y2', b.y);
     line.setAttribute('class', `graph-link ${l.type}`);
+    if(l.type === 'manual-link'){
+  if(!l.id) l.id = `manual-link:${Date.now()}:${Math.random().toString(16).slice(2)}`;
+
+  line.classList.toggle('selected', graphSelectedLink === l.id);
+  line.style.cursor = 'pointer';
+
+  line.addEventListener('click', e => {
+    e.stopPropagation();
+
+    graphSelectedLink = l.id;
+    graphSelectedNode = null;
+    graphLinkSource = null;
+    graphLinkTarget = null;
+
+    setRelationshipEditor(l.label);
+
+    document.getElementById('graphRelAddBtn').disabled = true;
+    document.getElementById('graphRelSaveBtn').disabled = false;
+    document.getElementById('graphDeleteBtn').disabled = false;
+    document.getElementById('graphEntitySaveBtn').textContent = 'Add Entity';
+
+    renderEntityGraph(svgId, inc);
+  });
+}
     svg.appendChild(line);
+    
+    if(l.label){
+  const tx = (a.x + b.x) / 2;
+  const ty = (a.y + b.y) / 2;
+
+  const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+  label.setAttribute('x', tx);
+  label.setAttribute('y', ty - 5);
+  label.setAttribute('text-anchor', 'middle');
+  label.setAttribute('class', 'graph-link-label');
+  label.textContent = l.label;
+
+  if(l.type === 'manual-link'){
+    label.style.cursor = 'pointer';
+
+    label.addEventListener('click', e => {
+      e.stopPropagation();
+
+      graphSelectedLink = l.id;
+      graphSelectedNode = null;
+      graphLinkSource = null;
+      graphLinkTarget = null;
+
+      setRelationshipEditor(l.label);
+
+      document.getElementById('graphRelAddBtn').disabled = true;
+      document.getElementById('graphRelSaveBtn').disabled = false;
+      document.getElementById('graphDeleteBtn').disabled = false;
+      document.getElementById('graphEntitySaveBtn').textContent = 'Add Entity';
+
+      renderEntityGraph(svgId, inc);
+    });
+  }
+
+  svg.appendChild(label);
+}
   });
 
   graph.nodes.forEach(n => {
   const g = document.createElementNS('http://www.w3.org/2000/svg','g');
-  g.setAttribute('class', `graph-node ${n.type}${graphLinkSource === n.id ? ' selected' : ''}`);
+  g.setAttribute(
+  'class',
+  `graph-node ${n.type}${graphLinkSource === n.id || graphLinkTarget === n.id || graphSelectedNode === n.id ? ' selected' : ''}`
+
+);
   g.setAttribute('transform', `translate(${n.x},${n.y})`);
 
   g.addEventListener('click', e => {
@@ -2396,6 +2471,7 @@ function renderEntityGraph(svgId, inc){
 
   handleGraphNodeClick(n, inc, svgId);
 });
+
   makeGraphNodeDraggable(svg, g, n, inc, svgId);
 
 
@@ -2671,7 +2747,7 @@ function ensureGraphExtras(inc){
   return inc.graphExtras;
 }
 
-function addGraphEntity(){
+function saveGraphEntity(){
   const inc = cur();
   if(!inc) return;
 
@@ -2685,69 +2761,64 @@ function addGraphEntity(){
 
   const extras = ensureGraphExtras(inc);
 
-  extras.nodes.push({
-    id: `custom:${Date.now()}`,
-    label,
-    type,
-    x: 450,
-    y: 280
-  });
+  if(graphSelectedNode && graphSelectedNode.startsWith('custom:')){
+    const node = extras.nodes.find(n => n.id === graphSelectedNode);
+    if(node){
+      node.type = type;
+      node.label = label;
+    }
+  } else {
+    extras.nodes.push({
+      id: `custom:${Date.now()}`,
+      label,
+      type,
+      x: 450,
+      y: 280
+    });
+  }
 
   document.getElementById('graphEntityLabel').value = '';
+  document.getElementById('graphEntitySaveBtn').textContent = 'Add Entity';
+
   save();
   renderEntityGraph('entityGraph', inc);
 }
 
-function toggleGraphLinkMode(){
-  graphLinkMode = !graphLinkMode;
-  graphLinkSource = null;
-
-  const btn = document.getElementById('graphLinkBtn');
-  if(btn){
-    btn.textContent = graphLinkMode ? 'Link Mode: ON' : 'Link Mode: OFF';
-    btn.style.borderColor = graphLinkMode ? 'var(--green)' : 'var(--border)';
-    btn.style.color = graphLinkMode ? 'var(--green)' : 'var(--text-dim)';
-  }
-
-  const inc = cur();
-  if(inc) renderEntityGraph('entityGraph', inc);
-}
 
 function handleGraphNodeClick(node, inc, svgId){
-  if(!graphLinkMode) return;
+  graphSelectedNode = node.id;
+  graphSelectedLink = null;
+
+  document.getElementById('graphRelSaveBtn').disabled = true;
+
+  if(node.id.startsWith('custom:')){
+    document.getElementById('graphEntityType').value = node.type;
+    document.getElementById('graphEntityLabel').value = node.label;
+    document.getElementById('graphEntitySaveBtn').textContent = 'Update Entity';
+  } else {
+    document.getElementById('graphEntitySaveBtn').textContent = 'Add Entity';
+  }
+
+  const deleteBtn = document.getElementById('graphDeleteBtn');
+  if(deleteBtn){
+    deleteBtn.disabled = !node.id.startsWith('custom:');
+  }
 
   if(!graphLinkSource){
     graphLinkSource = node.id;
-    renderEntityGraph(svgId, inc);
-    return;
-  }
-
-  if(graphLinkSource === node.id){
+    graphLinkTarget = null;
+  } else if(graphLinkSource === node.id){
     graphLinkSource = null;
-    renderEntityGraph(svgId, inc);
-    return;
+    graphLinkTarget = null;
+  } else {
+    graphLinkTarget = node.id;
   }
 
-  const extras = ensureGraphExtras(inc);
-  const relInput = document.getElementById('graphLinkLabel');
-  const label = (relInput?.value || 'related_to').trim();
-
-  const exists = extras.links.some(l =>
-    (l.source === graphLinkSource && l.target === node.id) ||
-    (l.source === node.id && l.target === graphLinkSource)
-  );
-
-  if(!exists){
-    extras.links.push({
-      source: graphLinkSource,
-      target: node.id,
-      type: 'manual-link',
-      label
-    });
+  const addBtn = document.getElementById('graphRelAddBtn');
+  if(addBtn){
+    addBtn.disabled = !(graphLinkSource && graphLinkTarget);
   }
 
-  graphLinkSource = null;
-  save();
   renderEntityGraph(svgId, inc);
 }
 
@@ -2756,8 +2827,6 @@ let graphDidDrag = false;
 
 function makeGraphNodeDraggable(svg, g, node, inc, svgId){
   g.addEventListener('mousedown', e => {
-    if(graphLinkMode) return;
-
     e.preventDefault();
     graphDidDrag = false;
 
@@ -2778,9 +2847,9 @@ function makeGraphNodeDraggable(svg, g, node, inc, svgId){
 }
 
 window.addEventListener('mousemove', e => {
-  
   if(!graphDragState) return;
   graphDidDrag = true;
+
   const svg = document.getElementById(graphDragState.svgId);
   const pt = svg.createSVGPoint();
 
@@ -2838,6 +2907,124 @@ function addAutoSharedEntityLinks(nodes, links){
     }
   });
 }
+
+function selectGraphNode(node, inc, svgId){
+  graphSelectedNode = graphSelectedNode === node.id ? null : node.id;
+
+  const btn = document.getElementById('graphDeleteBtn');
+  if(btn){
+    const canDelete = graphSelectedNode && graphSelectedNode.startsWith('custom:');
+    btn.disabled = !canDelete;
+    btn.textContent = canDelete ? 'Remove Selected' : 'Select Manual Entity';
+  }
+
+  renderEntityGraph(svgId, inc);
+}
+
+
+
+function syncRelCustomInput(){
+  const relType = document.getElementById('graphRelType').value;
+  document.getElementById('graphRelCustom').style.display = relType === 'custom' ? '' : 'none';
+}
+
+function getRelationshipLabel(){
+  const relType = document.getElementById('graphRelType').value;
+  if(relType === 'custom'){
+    return document.getElementById('graphRelCustom').value.trim() || 'related_to';
+  }
+  return relType;
+}
+
+function setRelationshipEditor(label){
+  const known = ['related_to','observed_in','same_ioc','communicates_with','spawned_by','uses','caused_by'];
+  const relSelect = document.getElementById('graphRelType');
+  const custom = document.getElementById('graphRelCustom');
+
+  if(known.includes(label)){
+    relSelect.value = label;
+    custom.value = '';
+  } else {
+    relSelect.value = 'custom';
+    custom.value = label || '';
+  }
+
+  syncRelCustomInput();
+}
+
+function addSelectedRelationship(){
+  const inc = cur();
+  if(!inc || !graphLinkSource || !graphLinkTarget) return;
+
+  const extras = ensureGraphExtras(inc);
+
+  extras.links.push({
+    id: `manual-link:${Date.now()}`,
+    source: graphLinkSource,
+    target: graphLinkTarget,
+    type: 'manual-link',
+    label: getRelationshipLabel()
+  });
+
+  graphLinkSource = null;
+  graphLinkTarget = null;
+  graphSelectedNode = null;
+
+  document.getElementById('graphRelAddBtn').disabled = true;
+  document.getElementById('graphDeleteBtn').disabled = true;
+
+  save();
+  renderEntityGraph('entityGraph', inc);
+}
+
+function updateSelectedRelationship(){
+  const inc = cur();
+  if(!inc || !graphSelectedLink) return;
+
+  const extras = ensureGraphExtras(inc);
+  const link = extras.links.find(l => l.id === graphSelectedLink);
+
+  if(link){
+    link.label = getRelationshipLabel();
+    save();
+    renderEntityGraph('entityGraph', inc);
+  }
+}
+
+function deleteSelectedGraphItem(){
+  const inc = cur();
+  if(!inc) return;
+
+  const extras = ensureGraphExtras(inc);
+
+  if(graphSelectedLink){
+    extras.links = extras.links.filter(l => l.id !== graphSelectedLink);
+    graphSelectedLink = null;
+  } else if(graphSelectedNode && graphSelectedNode.startsWith('custom:')){
+    extras.nodes = extras.nodes.filter(n => n.id !== graphSelectedNode);
+    extras.links = extras.links.filter(l =>
+      l.source !== graphSelectedNode && l.target !== graphSelectedNode
+    );
+
+    if(extras.positions){
+      delete extras.positions[graphSelectedNode];
+    }
+
+    graphSelectedNode = null;
+  }
+
+  graphLinkSource = null;
+  graphLinkTarget = null;
+
+  document.getElementById('graphRelAddBtn').disabled = true;
+  document.getElementById('graphRelSaveBtn').disabled = true;
+  document.getElementById('graphDeleteBtn').disabled = true;
+  document.getElementById('graphEntitySaveBtn').textContent = 'Add Entity';
+
+  save();
+  renderEntityGraph('entityGraph', inc);
+}
+
 
 init();
 </script>
