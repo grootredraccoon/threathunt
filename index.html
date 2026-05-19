@@ -129,11 +129,75 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;
 
 .tl-wrap{flex:1;overflow-y:auto;padding:16px 16px}
 
-.state-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
-  height:100%;color:var(--text-muted);font-family:var(--font-mono);font-size:.8rem;gap:10px;
-  opacity:.45;text-align:center;line-height:1.7}
-.state-empty .ico{font-size:2.2rem;opacity:.3;display:block;margin-bottom:4px}
-
+.state-empty{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  height:100%;
+  color:#8fb2d0;
+  font-family:var(--font-mono);
+  font-size:.88rem;
+  gap:12px;
+  opacity:1;
+  text-align:center;
+  line-height:1.8;
+}
+.state-empty .ico{
+  font-size:2.2rem;
+  opacity:.55;
+  display:block;
+  margin-bottom:4px;
+  color:var(--accent);
+}
+.backup-notice{
+  width:min(520px,92%);
+  margin:8px auto 4px;
+  padding:14px 16px;
+  border:1px solid rgba(255,149,32,.55);
+  border-left:4px solid var(--orange);
+  border-radius:4px;
+  background:rgba(255,149,32,.09);
+  color:#f3c27d;
+  font-family:var(--font-kr);
+  font-size:.82rem;
+  line-height:1.75;
+  box-shadow:0 0 22px rgba(255,149,32,.12);
+}
+.backup-notice strong{
+  color:#ffd060;
+}
+.backup-notice .bn-title{
+  display:block;
+  margin-bottom:4px;
+  color:#ffb040;
+  font-family:var(--font-mono);
+  font-size:.72rem;
+  font-weight:700;
+  letter-spacing:.08em;
+}
+.backup-notice .bn-actions{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.backup-notice .bn-btn{
+  font-family:var(--font-kr);
+  font-size:.76rem;
+  font-weight:700;
+  padding:7px 13px;
+  border-radius:3px;
+  cursor:pointer;
+  border:1px solid rgba(255,208,96,.55);
+  background:rgba(255,208,96,.13);
+  color:#ffd060;
+}
+.backup-notice .bn-btn:hover{
+  background:rgba(255,208,96,.22);
+  box-shadow:0 0 16px rgba(255,208,96,.18);
+}
 .tl-rail{position:relative;padding-left:32px}
 .tl-rail::before{content:'';position:absolute;left:10px;top:4px;bottom:4px;
   width:1px;background:linear-gradient(to bottom,var(--accent),var(--green),transparent);opacity:.25}
@@ -489,6 +553,147 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 ::-webkit-scrollbar-thumb:hover{background:#253040}
+
+
+.graph-wrap{
+  height:min(620px,72vh);
+  background:#05070b;
+  border:1px solid var(--border);
+  border-radius:4px;
+  overflow:hidden;
+  position:relative;
+}
+.graph-svg{
+  width:100%;
+  height:100%;
+  display:block;
+}
+.graph-link{
+  stroke:#29415a;
+  stroke-width:1.2;
+  opacity:.75;
+}
+.graph-node circle{
+  stroke-width:1.5;
+  filter:drop-shadow(0 0 8px rgba(0,229,255,.18));
+}
+.graph-node text{
+  fill:#d5e8f6;
+  font-family:var(--font-mono);
+  font-size:10px;
+  paint-order:stroke;
+  stroke:#05070b;
+  stroke-width:3px;
+  stroke-linejoin:round;
+}
+.graph-node.stage circle{fill:#00e5ff;stroke:#9af6ff}
+.graph-node.user circle{fill:#c060ff;stroke:#e3b0ff}
+.graph-node.asset circle{fill:#ff9520;stroke:#ffc27a}
+.graph-node.ioc circle{fill:#ff4060;stroke:#ff9aaa}
+.graph-node.tactic circle{fill:#39ff9a;stroke:#a5ffd0}
+.graph-node.technique circle{fill:#ffd060;stroke:#ffe6a0}
+
+.graph-legend{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+  font-family:var(--font-mono);
+  font-size:.66rem;
+  color:#9cb8ce;
+}
+.graph-legend span{
+  border:1px solid var(--border2);
+  padding:3px 7px;
+  border-radius:2px;
+  background:rgba(255,255,255,.03);
+}
+
+.graph-link.stage-flow{
+  stroke:var(--green);
+  stroke-width:1.8;
+  opacity:.9;
+}
+.graph-link.entity-link{
+  stroke:#37536f;
+  stroke-width:1.1;
+  opacity:.72;
+}
+.graph-node{
+  cursor:default;
+}
+.graph-node:hover circle{
+  stroke-width:2.5;
+  filter:drop-shadow(0 0 12px rgba(0,229,255,.35));
+}
+.graph-empty{
+  fill:#8fb2d0;
+  font-family:var(--font-kr);
+  font-size:16px;
+}
+
+.lab-access-note{
+  width:min(520px,92%);
+  margin:8px auto 4px;
+  padding:13px 16px;
+  border:1px solid rgba(0,229,255,.5);
+  border-left:4px solid var(--accent);
+  border-radius:4px;
+  background:rgba(0,229,255,.08);
+  color:#bfefff;
+  font-family:var(--font-kr);
+  font-size:.82rem;
+  line-height:1.75;
+  box-shadow:0 0 20px rgba(0,229,255,.10);
+}
+.lab-access-note strong{
+  color:#ffffff;
+}
+.lab-access-note code{
+  font-family:var(--font-mono);
+  color:#39ff9a;
+  background:rgba(0,0,0,.35);
+  border:1px solid var(--border2);
+  padding:1px 6px;
+  border-radius:2px;
+}
+
+.lab-access-note .lan-title{
+  display:block;
+  margin-bottom:6px;
+  color:var(--accent);
+  font-family:var(--font-mono);
+  font-size:.72rem;
+  font-weight:700;
+  letter-spacing:.08em;
+}
+.lab-access-note .lan-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:10px;
+}
+.lab-access-note .lan-card{
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(0,0,0,.22);
+  border-radius:3px;
+  padding:8px 10px;
+}
+.lab-access-note .lan-card b{
+  display:block;
+  margin-bottom:3px;
+  color:var(--yellow);
+  font-family:var(--font-mono);
+  font-size:.64rem;
+}
+.lab-access-note ul{
+  margin:6px 0 0 16px;
+  padding:0;
+}
+@media(max-width:760px){
+  .lab-access-note .lan-grid{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
@@ -504,8 +709,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;
       <div>
         <div class="warn-heading">브라우저 캐시 저장 안내 <em>STORAGE NOTICE</em></div>
         <div class="warn-sub">
-          이 도구의 모든 데이터는 <strong>브라우저 로컬스토리지(localStorage)</strong>에 저장됩니다.<br>
-          끄고 다시 켜도 데이터는 유지되지만, 특정 상황에서 <strong>데이터가 영구 삭제</strong>될 수 있습니다.
+          작성한 인시던트와 Stage 정보는 이 브라우저에 자동 저장됩니다.<br>
+다만 사이트 데이터나 브라우저 저장소를 삭제하면 내용이 사라질 수 있으니,
+중요한 기록은 <strong>백업 파일로 따로 저장</strong>해 주세요.
         </div>
       </div>
     </div>
@@ -564,6 +770,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;
   <div class="logo-sub">THREAT HUNT</div>
   <div class="hdr-course">Elasticsearch Threat Hunting · <span id="hdrIncId">인시던트를 선택하세요</span></div>
   <div class="hdr-right">
+
     <div class="sev-badge" id="sevBadge"></div>
     <button class="hdr-btn primary" id="rptBtn" style="display:none" onclick="openReport()">⬡ 보고서 생성</button>
   </div>
@@ -592,10 +799,53 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;
 
       <div class="tl-wrap" id="tlWrap">
         <div class="state-empty" id="stateNone">
-          <span class="ico">◈</span>
-          왼쪽에서 인시던트를 선택하거나<br>새로 만드세요
-          <button class="btn btn-p" style="margin-top:8px;font-size:.72rem" onclick="openNewInc()">+ 새 인시던트</button>
-        </div>
+  <span class="ico">◈</span>
+  왼쪽에서 인시던트를 선택하거나<br>새로 만드세요
+
+  <div class="backup-notice">
+    <span class="bn-title">⚠ 백업 안내</span>
+    브라우저 캐시나 사이트 데이터가 삭제되면 저장된 인시던트가 사라질 수 있습니다.<br>
+    중요한 기록은 <strong>정기적으로 백업 저장</strong>해 두면, 데이터가 삭제되어도
+    <strong>백업 불러오기</strong>로 복원할 수 있습니다.
+
+    <div class="bn-actions">
+      <button class="bn-btn" onclick="backupJSON()">백업 저장</button>
+      <button class="bn-btn" onclick="restoreFromJSON()">백업 불러오기</button>
+    </div>
+  </div>
+
+  <div class="lab-access-note">
+  <span class="lan-title">ELASTIC SIEM LAB ACCESS</span>
+
+  <strong>승인된 수강생 전용 랩</strong><br>
+  본 랩은 <strong>레드라쿤 Blue Team Lite</strong> 강의를 구매하고
+  구글폼을 작성한 수강생에게만 제공됩니다.
+  랩 접속 정보는 Discord <code>#btl-lab-access</code> 채널에서 확인하세요.<br>
+  랩 URL, 계정 정보, 접속 절차를 외부에 공유하거나 재배포하는 행위는 금지됩니다.
+
+  <div class="lan-grid">
+    <div class="lan-card">
+      <b>HUNTING FLOW</b>
+      <ul>
+        <li>Kibana Discover에서 이벤트를 검색합니다.</li>
+        <li>Timeline에 공격 단계를 시간순으로 기록합니다.</li>
+        <li>IOC, User, Host, Technique을 빠짐없이 남깁니다.</li>
+      </ul>
+    </div>
+
+    <div class="lan-card">
+      <b>EVIDENCE TO COLLECT</b>
+      <ul>
+        <li>KQL / EQL Query</li>
+        <li>Index, Event ID, Alert UUID</li>
+        <li>관련 스크린샷과 SIEM 근거</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+  <button class="btn btn-p" style="margin-top:8px;font-size:.72rem" onclick="openNewInc()">+ 새 인시던트</button>
+</div>
         <div class="state-empty" id="stateEmpty" style="display:none">
           <span class="ico">⬡</span>
           Stage가 없습니다<br>
@@ -637,7 +887,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;
           </div>
         </div>
         <div class="rsb-sec" style="border:none">
-          <div class="rsb-lbl">Export</div>
+          <div class="rsb-lbl">기능</div>
+          <button class="exp-btn" onclick="openGraph()">⬡ 관계 그래프 보기</button>
           <button class="exp-btn" onclick="openReport()">⬡ 보고서 미리보기</button>
           <button class="exp-btn md" onclick="exportMD()">⬇ Markdown (.md)</button>
           <button class="exp-btn pdf" onclick="exportPDF()">⬇ PDF 다운로드</button>
@@ -690,7 +941,21 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;
         <div class="f ff"><label>IOC List <span style="color:var(--text-muted);font-size:.6em">(한 줄에 하나)</span></label>
           <textarea id="fIoc" rows="4" placeholder="192.168.45.69&#10;http://evil.example.com/payload.exe&#10;SHA256:abc123…"></textarea></div>
         <div class="f ff"><label>SIEM Query Reference</label>
-          <input id="fSiem" type="text" placeholder="예: index=windows EventCode=4688 CommandLine=*powershell*"/></div>
+        <input id="fSiem" type="text" placeholder="예: process.name:powershell.exe AND event.code:4688"/>
+
+</div>
+
+<div class="f"><label>Elastic Index</label>
+  <input id="fIndex" type="text" placeholder="예: logs-windows.sysmon-* / winlogbeat-*"/>
+</div>
+
+<div class="f"><label>Event / Alert ID</label>
+  <input id="fEventId" type="text" placeholder="예: _id 또는 kibana.alert.uuid"/>
+</div>
+
+<div class="f ff"><label>Kibana Discover / Alert URL</label>
+  <input id="fKibanaUrl" type="text" placeholder="예: https://.../app/discover#..."/>
+</div>
         <div class="f ff"><label>Evidence Images</label>
           <div class="img-zone" onclick="document.getElementById('imgIn').click()">
             🖼 클릭하여 스크린샷 업로드 (PNG · JPG · GIF)
@@ -750,6 +1015,35 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;
         <span id="cpDone" style="color:var(--green);font-size:.7rem;display:none">✓ 복사됨!</span>
       </div>
       <div class="rout" id="rOut"></div>
+      <div id="reportGraphBlock" style="display:none;margin-top:14px">
+  <div class="rsb-lbl" style="margin-bottom:8px">Entity Relationship Graph</div>
+  <div class="graph-wrap" style="height:420px">
+    <svg id="reportEntityGraph" class="graph-svg" viewBox="0 0 900 560"></svg>
+  </div>
+</div>
+    </div>
+  </div>
+</div>
+
+<!-- ENTITY GRAPH MODAL -->
+<div class="overlay" id="graphModal">
+  <div class="modal" style="width:min(980px,96vw)">
+    <div class="mhdr">
+      <div class="mtitle">Entity Relationship Graph</div>
+      <button class="mclose" onclick="closeM('graphModal')">✕</button>
+    </div>
+    <div class="mbody">
+      <div class="graph-legend">
+        <span>Stage</span>
+        <span>User</span>
+        <span>Asset</span>
+        <span>IOC</span>
+        <span>Tactic</span>
+        <span>Technique</span>
+      </div>
+      <div class="graph-wrap">
+        <svg id="entityGraph" class="graph-svg" viewBox="0 0 900 560"></svg>
+      </div>
     </div>
   </div>
 </div>
@@ -760,7 +1054,6 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;
 </div>
 
 <script>
-// ════════ TECHNIQUES MAP ════════
 const TECHS = {
   'Initial Access':['T1566 – Phishing','T1566.001 – Spearphishing Attachment','T1566.002 – Spearphishing Link','T1190 – Exploit Public-Facing Application','T1133 – External Remote Services','T1078 – Valid Accounts','T1195 – Supply Chain Compromise'],
   'Execution':['T1059 – Command and Scripting Interpreter','T1059.001 – PowerShell','T1059.003 – Windows Command Shell','T1059.007 – JavaScript','T1053 – Scheduled Task/Job','T1047 – WMI','T1204 – User Execution','T1203 – Exploitation for Client Execution','T1106 – Native API'],
@@ -783,275 +1076,447 @@ const DOT = {
   'Exfiltration':'dot-ef','Command & Control':'dot-c2','Impact':'dot-im',
 };
 
-// ════════ STATE ════════
-let DB = JSON.parse(localStorage.getItem('bt_db')||'null') || {incidents:[],cur:null};
+const BACKUP_VERSION = 1;
+
+let DB = JSON.parse(localStorage.getItem('bt_db') || 'null') || { incidents: [], cur: null };
 let editId = null;
 let filterVal = 'all';
 let pendImgs = [];
 
 const save = () => localStorage.setItem('bt_db', JSON.stringify(DB));
-const cur  = () => DB.incidents.find(i=>i.id===DB.cur)||null;
-const esc  = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const cur = () => DB.incidents.find(i => i.id === DB.cur) || null;
+const esc = s => String(s ?? '')
+  .replace(/&/g,'&amp;')
+  .replace(/</g,'&lt;')
+  .replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;')
+  .replace(/'/g,'&#39;');
 
-// ════════ CACHE WARNING ════════
 function initWarn(){
   const skip = localStorage.getItem('bt_warn_skip') === '1';
-  if(!skip){
-    document.getElementById('warnOverlay').classList.remove('hidden');
-  }
+  if(!skip) document.getElementById('warnOverlay').classList.remove('hidden');
 }
 
 function closeWarn(){
   if(document.getElementById('warnSkip').checked){
     localStorage.setItem('bt_warn_skip','1');
   }
+
   const el = document.getElementById('warnOverlay');
-  el.style.opacity='0';
-  el.style.transition='opacity .25s ease';
-  setTimeout(()=>el.classList.add('hidden'),260);
+  el.style.opacity = '0';
+  el.style.transition = 'opacity .25s ease';
+  setTimeout(() => el.classList.add('hidden'), 260);
 }
 
-// ════════ BOOT ════════
 function init(){
   initWarn();
+  setupBackupControls();
   renderIncList();
+
   if(DB.cur) selectInc(DB.cur);
   else showEmpty();
 }
 
-// ════════ INCIDENTS ════════
 function renderIncList(){
   const el = document.getElementById('incList');
+
   if(!DB.incidents.length){
-    el.innerHTML='<div style="color:var(--text-muted);font-size:.68rem;text-align:center;padding:12px;opacity:.55;line-height:1.7">인시던트 없음<br>아래 버튼으로 추가하세요</div>';
-    return;
+el.innerHTML='<div style="color:#7fa6c8;font-size:.75rem;text-align:center;padding:18px 10px;opacity:1;line-height:1.8">인시던트 없음<br>아래 버튼으로 추가하세요</div>';    return;
   }
-  el.innerHTML = DB.incidents.map(inc=>{
-    const n = (inc.stages||[]).length;
-    const act = inc.id===DB.cur?'active':'';
-    return `<div class="inc-card ${act}" onclick="selectInc('${inc.id}')">
-      <div class="ic-id">${esc(inc.incId||inc.id)}</div>
+
+  el.innerHTML = DB.incidents.map(inc => {
+    const n = (inc.stages || []).length;
+    const act = inc.id === DB.cur ? 'active' : '';
+
+    return `<div class="inc-card ${act}" onclick="selectInc('${esc(inc.id)}')">
+      <div class="ic-id">${esc(inc.incId || inc.id)}</div>
       <div class="ic-title">${esc(inc.title)}</div>
       <div class="ic-meta">
-        <span class="ic-sev ${inc.sev}">${inc.sev}</span>
-        <span class="ic-cnt">${n} stage${n!==1?'s':''}</span>
-        <button class="ic-del" onclick="event.stopPropagation();delInc('${inc.id}')" title="삭제">✕</button>
+        <span class="ic-sev ${esc(inc.sev)}">${esc(inc.sev)}</span>
+        <span class="ic-cnt">${n} stage${n !== 1 ? 's' : ''}</span>
+        <button class="ic-del" onclick="event.stopPropagation();delInc('${esc(inc.id)}')" title="삭제">✕</button>
       </div>
     </div>`;
   }).join('');
 }
 
 function selectInc(id){
-  DB.cur = id; save();
-  const inc = cur(); if(!inc) return;
-  document.getElementById('stateNone').style.display='none';
-  document.getElementById('toolbar').style.display='';
-  document.getElementById('rsbNone').style.display='none';
-  document.getElementById('rsbMain').style.display='';
-  document.getElementById('rptBtn').style.display='';
-  document.getElementById('sevBadge').style.display='';
-  document.getElementById('mId').value = inc.incId||'';
-  document.getElementById('mAnalyst').value = inc.analyst||'';
-  document.getElementById('mSev').value = inc.sev||'HIGH';
+  DB.cur = id;
+  save();
+
+  const inc = cur();
+  if(!inc) return;
+
+  document.getElementById('stateNone').style.display = 'none';
+  document.getElementById('toolbar').style.display = '';
+  document.getElementById('rsbNone').style.display = 'none';
+  document.getElementById('rsbMain').style.display = '';
+  document.getElementById('rptBtn').style.display = '';
+  document.getElementById('sevBadge').style.display = '';
+
+  document.getElementById('mId').value = inc.incId || '';
+  document.getElementById('mAnalyst').value = inc.analyst || '';
+  document.getElementById('mSev').value = inc.sev || 'HIGH';
+
   updateHeader(false);
-  renderTL(); updateStats(); buildTacFilter();
+  renderTL();
+  updateStats();
+  buildTacFilter();
   renderIncList();
 }
 
 function showEmpty(){
-  document.getElementById('stateNone').style.display='';
-  document.getElementById('stateEmpty').style.display='none';
-  document.getElementById('tlRail').style.display='none';
-  document.getElementById('toolbar').style.display='none';
-  document.getElementById('rsbNone').style.display='';
-  document.getElementById('rsbMain').style.display='none';
-  document.getElementById('rptBtn').style.display='none';
-  document.getElementById('sevBadge').style.display='none';
-  document.getElementById('hdrIncId').textContent='인시던트를 선택하세요';
+  document.getElementById('stateNone').style.display = '';
+  document.getElementById('stateEmpty').style.display = 'none';
+  document.getElementById('tlRail').style.display = 'none';
+  document.getElementById('toolbar').style.display = 'none';
+  document.getElementById('rsbNone').style.display = '';
+  document.getElementById('rsbMain').style.display = 'none';
+  document.getElementById('rptBtn').style.display = 'none';
+  document.getElementById('sevBadge').style.display = 'none';
+  document.getElementById('hdrIncId').textContent = '인시던트를 선택하세요';
+
   renderIncList();
 }
 
 function openNewInc(){
-  const n = DB.incidents.length+1;
-  document.getElementById('nId').value = 'INC-2026-'+String(n).padStart(4,'0');
-  document.getElementById('nTitle').value='';
-  document.getElementById('nAnalyst').value='';
-  document.getElementById('nSev').value='HIGH';
+  const n = DB.incidents.length + 1;
+
+  document.getElementById('nId').value = 'INC-2026-' + String(n).padStart(4,'0');
+  document.getElementById('nTitle').value = '';
+  document.getElementById('nAnalyst').value = '';
+  document.getElementById('nSev').value = 'HIGH';
   document.getElementById('newIncModal').classList.add('on');
 }
 
 function createInc(){
   const id = document.getElementById('nId').value.trim();
   const title = document.getElementById('nTitle').value.trim();
-  if(!id||!title){alert('Incident ID와 제목은 필수입니다.');return;}
-  const inc={id:Date.now()+'',incId:id,title,analyst:document.getElementById('nAnalyst').value.trim(),
-    sev:document.getElementById('nSev').value,stages:[]};
-  DB.incidents.push(inc); save();
-  closeM('newIncModal'); selectInc(inc.id);
+
+  if(!id || !title){
+    alert('Incident ID와 제목은 필수입니다.');
+    return;
+  }
+
+  const inc = {
+    id: Date.now() + '',
+    incId: id,
+    title,
+    analyst: document.getElementById('nAnalyst').value.trim(),
+    sev: document.getElementById('nSev').value,
+    stages: []
+  };
+
+  DB.incidents.push(inc);
+  save();
+
+  closeM('newIncModal');
+  selectInc(inc.id);
 }
 
 function delInc(id){
   if(!confirm('이 Incident와 모든 Stage를 삭제할까요?')) return;
-  DB.incidents = DB.incidents.filter(i=>i.id!==id);
-  if(DB.cur===id) DB.cur = DB.incidents.length?DB.incidents[0].id:null;
-  save();
-  if(DB.cur) selectInc(DB.cur); else showEmpty();
-}
 
-// ════════ META ════════
-function saveMeta(){ updateHeader(true); }
+  DB.incidents = DB.incidents.filter(i => i.id !== id);
 
-function updateHeader(write=true){
-  const inc=cur(); if(!inc) return;
-  const id = document.getElementById('mId').value||'UNKNOWN';
-  const sev = document.getElementById('mSev').value;
-  if(write){
-    inc.incId=id;
-    inc.analyst=document.getElementById('mAnalyst').value;
-    inc.sev=sev;
-    save(); renderIncList();
+  if(DB.cur === id){
+    DB.cur = DB.incidents.length ? DB.incidents[0].id : null;
   }
-  document.getElementById('hdrIncId').textContent=id;
-  const badge=document.getElementById('sevBadge');
-  badge.textContent='SEV: '+sev;
-  const C={CRITICAL:'#ff4060',HIGH:'#ff9520',MEDIUM:'#ffd060',LOW:'#39ff9a',INFORMATIONAL:'#00e5ff'};
-  badge.style.borderColor=badge.style.color=C[sev]||'var(--accent)';
+
+  save();
+
+  if(DB.cur) selectInc(DB.cur);
+  else showEmpty();
 }
 
-// ════════ TECHNIQUE DROPDOWN ════════
+function saveMeta(){
+  updateHeader(true);
+}
+
+function updateHeader(write = true){
+  const inc = cur();
+  if(!inc) return;
+
+  const id = document.getElementById('mId').value || 'UNKNOWN';
+  const sev = document.getElementById('mSev').value;
+
+  if(write){
+    inc.incId = id;
+    inc.analyst = document.getElementById('mAnalyst').value;
+    inc.sev = sev;
+    save();
+    renderIncList();
+  }
+
+  document.getElementById('hdrIncId').textContent = id;
+
+  const badge = document.getElementById('sevBadge');
+  const colors = {
+    CRITICAL:'#ff4060',
+    HIGH:'#ff9520',
+    MEDIUM:'#ffd060',
+    LOW:'#39ff9a',
+    INFORMATIONAL:'#00e5ff'
+  };
+
+  badge.textContent = 'SEV: ' + sev;
+  badge.style.borderColor = badge.style.color = colors[sev] || 'var(--accent)';
+}
+
 function loadTechs(){
-  const t=document.getElementById('fTactic').value;
-  const s=document.getElementById('fTech');
-  s.innerHTML='';
-  if(!t){s.innerHTML='<option value="">— Select Tactic first —</option>';return;}
-  (TECHS[t]||[]).forEach(v=>{const o=document.createElement('option');o.value=o.textContent=v;s.appendChild(o);});
+  const tactic = document.getElementById('fTactic').value;
+  const select = document.getElementById('fTech');
+
+  select.innerHTML = '';
+
+  if(!tactic){
+    select.innerHTML = '<option value="">— Select Tactic first —</option>';
+    return;
+  }
+
+  (TECHS[tactic] || []).forEach(v => {
+    const o = document.createElement('option');
+    o.value = v;
+    o.textContent = v;
+    select.appendChild(o);
+  });
 }
 
-// ════════ IMAGES ════════
 function handleImgs(e){
-  Array.from(e.target.files).forEach(f=>{
-    const r=new FileReader();
-    r.onload=ev=>{ pendImgs.push({name:f.name,dataUrl:ev.target.result}); renderPrev(); };
+  Array.from(e.target.files).forEach(f => {
+    const r = new FileReader();
+
+    r.onload = ev => {
+      pendImgs.push({ name: f.name, dataUrl: ev.target.result });
+      renderPrev();
+    };
+
     r.readAsDataURL(f);
   });
-  e.target.value='';
-}
-function renderPrev(){
-  document.getElementById('prevImgs').innerHTML=pendImgs.map((img,i)=>`
-    <div class="prev-img"><img src="${img.dataUrl}" alt="${esc(img.name)}"/>
-    <button class="rm" onclick="pendImgs.splice(${i},1);renderPrev()">✕</button></div>`).join('');
+
+  e.target.value = '';
 }
 
-// ════════ STAGE MODAL ════════
+function renderPrev(){
+  document.getElementById('prevImgs').innerHTML = pendImgs.map((img,i) => `
+    <div class="prev-img">
+      <img src="${img.dataUrl}" alt="${esc(img.name)}"/>
+      <button class="rm" onclick="pendImgs.splice(${i},1);renderPrev()">✕</button>
+    </div>
+  `).join('');
+}
+
 function openAddStage(){
-  if(!cur()){alert('인시던트를 먼저 선택하세요.');return;}
-  editId=null; pendImgs=[];
-  document.getElementById('mTitle').textContent='+ Add Stage';
-  ['fTitle','fDesc','fUser','fHost','fIoc','fSiem'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('fTs').value=new Date().toISOString().slice(0,16);
-  document.getElementById('fTactic').value='';
-  document.getElementById('fTech').innerHTML='<option value="">— Select Tactic first —</option>';
-  document.getElementById('fAsset').value='Workstation';
+  if(!cur()){
+    alert('인시던트를 먼저 선택하세요.');
+    return;
+  }
+
+  editId = null;
+  pendImgs = [];
+
+  document.getElementById('mTitle').textContent = '+ Add Stage';
+['fTitle','fDesc','fUser','fHost','fIoc','fSiem','fIndex','fEventId','fKibanaUrl'].forEach(id => {
+  document.getElementById(id).value = '';
+});
+
+  document.getElementById('fTs').value = new Date().toISOString().slice(0,16);
+  document.getElementById('fTactic').value = '';
+  document.getElementById('fTech').innerHTML = '<option value="">— Select Tactic first —</option>';
+document.getElementById('fAsset').value = 'Workstation';
+
   renderPrev();
   document.getElementById('stageModal').classList.add('on');
 }
 
 function openEditStage(id){
-  const inc=cur(); if(!inc) return;
-  const s=inc.stages.find(x=>x.id===id); if(!s) return;
-  editId=id; pendImgs=(s.images||[]).map(x=>({...x}));
-  document.getElementById('mTitle').textContent='✎ Edit Stage';
-  document.getElementById('fTitle').value=s.title;
-  document.getElementById('fDesc').value=s.desc;
-  document.getElementById('fTs').value=s.ts;
-  document.getElementById('fTactic').value=s.tactic; loadTechs();
-  document.getElementById('fTech').value=s.technique;
-  document.getElementById('fUser').value=s.user||'';
-  document.getElementById('fAsset').value=s.asset||'Workstation';
-  document.getElementById('fHost').value=s.host||'';
-  document.getElementById('fIoc').value=(s.iocs||[]).join('\n');
-  document.getElementById('fSiem').value=s.siem||'';
+  const inc = cur();
+  if(!inc) return;
+
+  const s = inc.stages.find(x => x.id === id);
+  if(!s) return;
+
+  editId = id;
+  pendImgs = (s.images || []).map(x => ({...x}));
+
+  document.getElementById('mTitle').textContent = '✎ Edit Stage';
+  document.getElementById('fTitle').value = s.title;
+  document.getElementById('fDesc').value = s.desc;
+  document.getElementById('fTs').value = s.ts;
+  document.getElementById('fTactic').value = s.tactic;
+
+  loadTechs();
+
+  document.getElementById('fTech').value = s.technique;
+  document.getElementById('fUser').value = s.user || '';
+  document.getElementById('fAsset').value = s.asset || 'Workstation';
+  document.getElementById('fHost').value = s.host || '';
+  document.getElementById('fIoc').value = (s.iocs || []).join('\n');
+  document.getElementById('fSiem').value = s.siem || '';
+  document.getElementById('fIndex').value = s.index || '';
+document.getElementById('fEventId').value = s.eventId || '';
+document.getElementById('fKibanaUrl').value = s.kibanaUrl || '';
+
   renderPrev();
   document.getElementById('stageModal').classList.add('on');
 }
 
-function closeM(id){document.getElementById(id).classList.remove('on')}
+function closeM(id){
+  document.getElementById(id).classList.remove('on');
+}
 
 function saveStage(){
-  const inc=cur(); if(!inc) return;
-  const title=document.getElementById('fTitle').value.trim();
-  const desc=document.getElementById('fDesc').value.trim();
-  const ts=document.getElementById('fTs').value;
-  const tactic=document.getElementById('fTactic').value;
-  const technique=document.getElementById('fTech').value;
-  if(!title||!desc||!ts||!tactic||!technique){alert('필수 항목을 모두 입력하세요.');return;}
-  const stage={
-    id:editId||(Date.now()+''),title,desc,ts,tactic,technique,
-    user:document.getElementById('fUser').value.trim(),
-    asset:document.getElementById('fAsset').value,
-    host:document.getElementById('fHost').value.trim(),
-    iocs:document.getElementById('fIoc').value.split('\n').map(x=>x.trim()).filter(Boolean),
-    siem:document.getElementById('fSiem').value.trim(),
-    images:[...pendImgs],
+  const inc = cur();
+  if(!inc) return;
+
+  const title = document.getElementById('fTitle').value.trim();
+  const desc = document.getElementById('fDesc').value.trim();
+  const ts = document.getElementById('fTs').value;
+  const tactic = document.getElementById('fTactic').value;
+  const technique = document.getElementById('fTech').value;
+  
+
+  if(!title || !desc || !ts || !tactic || !technique){
+    alert('필수 항목을 모두 입력하세요.');
+    return;
+  }
+
+  const stage = {
+    id: editId || (Date.now() + ''),
+    title,
+    desc,
+    ts,
+    tactic,
+    technique,
+    user: document.getElementById('fUser').value.trim(),
+  asset: document.getElementById('fAsset').value,
+  host: document.getElementById('fHost').value.trim(),
+  iocs: document.getElementById('fIoc').value.split('\n').map(x => x.trim()).filter(Boolean),
+  siem: document.getElementById('fSiem').value.trim(),
+  index: document.getElementById('fIndex').value.trim(),
+  eventId: document.getElementById('fEventId').value.trim(),
+  kibanaUrl: document.getElementById('fKibanaUrl').value.trim(),
+    images: [...pendImgs]
   };
-  if(editId){ const idx=inc.stages.findIndex(x=>x.id===editId); inc.stages[idx]=stage; }
-  else inc.stages.push(stage);
-  save(); closeM('stageModal'); renderTL(); updateStats(); buildTacFilter();
+
+  if(editId){
+    const idx = inc.stages.findIndex(x => x.id === editId);
+    inc.stages[idx] = stage;
+  } else {
+    inc.stages.push(stage);
+  }
+
+  save();
+  closeM('stageModal');
+  renderTL();
+  updateStats();
+  buildTacFilter();
 }
 
 function delStage(id){
-  const inc=cur(); if(!inc) return;
+  const inc = cur();
+  if(!inc) return;
+
   if(!confirm('이 Stage를 삭제할까요?')) return;
-  inc.stages=inc.stages.filter(x=>x.id!==id);
-  save(); renderTL(); updateStats(); buildTacFilter();
+
+  inc.stages = inc.stages.filter(x => x.id !== id);
+  save();
+
+  renderTL();
+  updateStats();
+  buildTacFilter();
 }
 
-function delStageImg(sid,idx){
-  const inc=cur(); if(!inc) return;
-  const s=inc.stages.find(x=>x.id===sid); if(!s) return;
-  s.images.splice(idx,1); save(); renderTL();
+function delStageImg(sid, idx){
+  const inc = cur();
+  if(!inc) return;
+
+  const s = inc.stages.find(x => x.id === sid);
+  if(!s) return;
+
+  s.images.splice(idx, 1);
+  save();
+  renderTL();
 }
 
-// ════════ TIMELINE RENDER ════════
 function renderTL(){
-  const inc=cur();
-  const rail=document.getElementById('tlRail');
-  const empty=document.getElementById('stateEmpty');
-  if(!inc){rail.style.display='none';empty.style.display='none';return;}
-  const q=(document.getElementById('searchBox').value||'').toLowerCase();
-  let list=[...inc.stages].sort((a,b)=>a.ts.localeCompare(b.ts));
-  if(filterVal!=='all') list=list.filter(s=>s.tactic===filterVal);
-  if(q) list=list.filter(s=>
-    s.title.toLowerCase().includes(q)||s.desc.toLowerCase().includes(q)||
-    (s.user||'').toLowerCase().includes(q)||(s.iocs||[]).join(' ').toLowerCase().includes(q)||
-    (s.host||'').toLowerCase().includes(q));
-  if(!list.length){rail.style.display='none';empty.style.display='flex';return;}
-  empty.style.display='none'; rail.style.display='block';
-  rail.innerHTML=list.map((s,i)=>{
-    const ts=s.ts?new Date(s.ts).toLocaleString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}):'—';
-    const dot=DOT[s.tactic]||'';
-    const iocsH=s.iocs&&s.iocs.length?`
+  const inc = cur();
+  const rail = document.getElementById('tlRail');
+  const empty = document.getElementById('stateEmpty');
+
+  if(!inc){
+    rail.style.display = 'none';
+    empty.style.display = 'none';
+    return;
+  }
+
+  const q = (document.getElementById('searchBox').value || '').toLowerCase();
+  let list = [...inc.stages].sort((a,b) => a.ts.localeCompare(b.ts));
+
+  if(filterVal !== 'all') list = list.filter(s => s.tactic === filterVal);
+
+  if(q){
+    list = list.filter(s =>
+      s.title.toLowerCase().includes(q) ||
+      s.desc.toLowerCase().includes(q) ||
+      (s.user || '').toLowerCase().includes(q) ||
+      (s.iocs || []).join(' ').toLowerCase().includes(q) ||
+      (s.host || '').toLowerCase().includes(q)
+      (s.host || '').toLowerCase().includes(q) ||
+      (s.siem || '').toLowerCase().includes(q) ||
+      (s.index || '').toLowerCase().includes(q) ||
+      (s.eventId || '').toLowerCase().includes(q) ||
+      (s.kibanaUrl || '').toLowerCase().includes(q)
+    );
+  }
+
+  if(!list.length){
+    rail.style.display = 'none';
+    empty.style.display = 'flex';
+    return;
+  }
+
+  empty.style.display = 'none';
+  rail.style.display = 'block';
+
+  rail.innerHTML = list.map((s,i) => {
+    const ts = s.ts
+      ? new Date(s.ts).toLocaleString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'})
+      : '—';
+
+    const dot = DOT[s.tactic] || '';
+
+    const iocsH = s.iocs && s.iocs.length ? `
       <div class="ioc-blk">
         <div class="ioc-lbl">⚠ IOC (${s.iocs.length})</div>
-        <div class="ioc-list">${s.iocs.map(io=>`<div>${esc(io)}</div>`).join('')}</div>
-      </div>`:'';
-    const siemH=s.siem?`<div class="siem-ref">📋 SIEM: ${esc(s.siem)}</div>`:'';
-    const imgH=s.images&&s.images.length?`
-      <div class="card-imgs">${s.images.map((img,idx)=>`
-        <div class="ci-wrap" onclick="openLB('${s.id}',${idx})">
+        <div class="ioc-list">${s.iocs.map(io => `<div>${esc(io)}</div>`).join('')}</div>
+      </div>` : '';
+
+    const siemH = s.siem ? `<div class="siem-ref">📋 SIEM: ${esc(s.siem)}</div>` : '';
+    const elasticH = (s.index || s.eventId || s.kibanaUrl) ? `
+  <div class="siem-ref">
+    ${s.index ? `INDEX: ${esc(s.index)}<br>` : ''}
+    ${s.eventId ? `EVENT: ${esc(s.eventId)}<br>` : ''}
+    ${s.kibanaUrl ? `KIBANA: ${esc(s.kibanaUrl)}` : ''}
+  </div>` : '';
+
+    const imgH = s.images && s.images.length ? `
+      <div class="card-imgs">${s.images.map((img,idx) => `
+        <div class="ci-wrap" onclick="openLB('${esc(s.id)}',${idx})">
           <img src="${img.dataUrl}" alt="${esc(img.name)}"/>
-          <button class="ci-del" onclick="event.stopPropagation();delStageImg('${s.id}',${idx})">✕</button>
+          <button class="ci-del" onclick="event.stopPropagation();delStageImg('${esc(s.id)}',${idx})">✕</button>
         </div>`).join('')}
-      </div>`:'';
+      </div>` : '';
+
     return `<div class="sc">
       <div class="sc-dot ${dot}"></div>
       <div class="sc-inner">
         <div class="sc-head">
-          <span class="sc-num">STAGE ${i+1}</span>
+          <span class="sc-num">STAGE ${i + 1}</span>
           <span class="sc-title">${esc(s.title)}</span>
           <div class="sc-acts">
-            <button class="ib" onclick="openEditStage('${s.id}')">✎ Edit</button>
-            <button class="ib del" onclick="delStage('${s.id}')">✕</button>
+            <button class="ib" onclick="openEditStage('${esc(s.id)}')">✎ Edit</button>
+            <button class="ib del" onclick="delStage('${esc(s.id)}')">✕</button>
           </div>
         </div>
         <div class="sc-ts">⏱ ${ts}</div>
@@ -1059,254 +1524,920 @@ function renderTL(){
         <div class="sc-pills">
           <span class="pill pt">${esc(s.tactic)}</span>
           <span class="pill pk">${esc(s.technique)}</span>
-          ${s.user?`<span class="pill pu">👤 ${esc(s.user)}</span>`:''}
-          <span class="pill pa">🖥 ${esc(s.asset)}${s.host?' · '+esc(s.host):''}</span>
+          ${s.user ? `<span class="pill pu">👤 ${esc(s.user)}</span>` : ''}
+          <span class="pill pa">🖥 ${esc(s.asset)}${s.host ? ' · ' + esc(s.host) : ''}</span>
         </div>
-        ${iocsH}${siemH}${imgH}
+        ${iocsH}${siemH}${elasticH}${imgH}
+
       </div>
     </div>`;
   }).join('');
 }
 
-function openLB(sid,idx){
-  const inc=cur(); if(!inc) return;
-  const s=inc.stages.find(x=>x.id===sid); if(!s||!s.images) return;
-  document.getElementById('lbImg').src=s.images[idx].dataUrl;
+function openLB(sid, idx){
+  const inc = cur();
+  if(!inc) return;
+
+  const s = inc.stages.find(x => x.id === sid);
+  if(!s || !s.images) return;
+
+  document.getElementById('lbImg').src = s.images[idx].dataUrl;
   document.getElementById('lb').classList.add('on');
 }
 
-// ════════ STATS ════════
 function updateStats(){
-  const inc=cur(); if(!inc) return;
-  const stg=inc.stages||[];
-  document.getElementById('stStages').textContent=stg.length;
-  document.getElementById('stIocs').textContent=stg.flatMap(s=>s.iocs||[]).length;
-  document.getElementById('stUsers').textContent=[...new Set(stg.map(s=>s.user).filter(Boolean))].length;
-  document.getElementById('stAssets').textContent=[...new Set(stg.map(s=>s.host||s.asset).filter(Boolean))].length;
-  if(stg.length>=2){
-    const so=[...stg].sort((a,b)=>a.ts.localeCompare(b.ts));
-    const d=Math.abs(new Date(so[so.length-1].ts)-new Date(so[0].ts));
-    document.getElementById('stDur').textContent=`${Math.floor(d/3600000)}h ${Math.floor((d%3600000)/60000)}m`;
-  } else document.getElementById('stDur').textContent='—';
+  const inc = cur();
+  if(!inc) return;
+
+  const stg = inc.stages || [];
+
+  document.getElementById('stStages').textContent = stg.length;
+  document.getElementById('stIocs').textContent = stg.flatMap(s => s.iocs || []).length;
+  document.getElementById('stUsers').textContent = [...new Set(stg.map(s => s.user).filter(Boolean))].length;
+  document.getElementById('stAssets').textContent = [...new Set(stg.map(s => s.host || s.asset).filter(Boolean))].length;
+
+  if(stg.length >= 2){
+    const so = [...stg].sort((a,b) => a.ts.localeCompare(b.ts));
+    const d = Math.abs(new Date(so[so.length - 1].ts) - new Date(so[0].ts));
+    document.getElementById('stDur').textContent = `${Math.floor(d / 3600000)}h ${Math.floor((d % 3600000) / 60000)}m`;
+  } else {
+    document.getElementById('stDur').textContent = '—';
+  }
 }
 
-// ════════ TACTIC FILTER ════════
 function buildTacFilter(){
-  const inc=cur(); if(!inc) return;
-  const tactics=[...new Set((inc.stages||[]).map(s=>s.tactic).filter(Boolean))];
-  const el=document.getElementById('tacFilter');
-  el.innerHTML=`<span class="tt ${filterVal==='all'?'on':''}" onclick="setFilter('all',this)">ALL</span>`;
-  tactics.forEach(t=>{
-    const sp=document.createElement('span');
-    sp.className='tt'+(filterVal===t?' on':'');
-    sp.textContent=t.split(' ')[0]; sp.title=t;
-    sp.onclick=()=>setFilter(t,sp);
+  const inc = cur();
+  if(!inc) return;
+
+  const tactics = [...new Set((inc.stages || []).map(s => s.tactic).filter(Boolean))];
+  const el = document.getElementById('tacFilter');
+
+  el.innerHTML = `<span class="tt ${filterVal === 'all' ? 'on' : ''}" onclick="setFilter('all',this)">ALL</span>`;
+
+  tactics.forEach(t => {
+    const sp = document.createElement('span');
+    sp.className = 'tt' + (filterVal === t ? ' on' : '');
+    sp.textContent = t.split(' ')[0];
+    sp.title = t;
+    sp.onclick = () => setFilter(t, sp);
     el.appendChild(sp);
   });
 }
-function setFilter(v,el){
-  filterVal=v;
-  document.querySelectorAll('.tt').forEach(e=>e.classList.remove('on'));
-  el.classList.add('on'); renderTL();
-}
-function sortStages(){const inc=cur();if(!inc)return;inc.stages.sort((a,b)=>a.ts.localeCompare(b.ts));save();renderTL();}
-function clearStages(){const inc=cur();if(!inc)return;if(!confirm('모든 Stage를 삭제할까요?'))return;inc.stages=[];save();renderTL();updateStats();buildTacFilter();}
 
-// ════════ REPORT ════════
+function setFilter(v, el){
+  filterVal = v;
+  document.querySelectorAll('.tt').forEach(e => e.classList.remove('on'));
+  el.classList.add('on');
+  renderTL();
+}
+
+function sortStages(){
+  const inc = cur();
+  if(!inc) return;
+
+  inc.stages.sort((a,b) => a.ts.localeCompare(b.ts));
+  save();
+  renderTL();
+}
+
+function clearStages(){
+  const inc = cur();
+  if(!inc) return;
+
+  if(!confirm('모든 Stage를 삭제할까요?')) return;
+
+  inc.stages = [];
+  save();
+
+  renderTL();
+  updateStats();
+  buildTacFilter();
+}
+
 function openReport(){
-  const inc=cur(); if(!inc) return;
-  const sorted=[...inc.stages].sort((a,b)=>a.ts.localeCompare(b.ts));
-  const allIocs=sorted.flatMap(s=>s.iocs||[]);
-  const now=new Date().toLocaleString('ko-KR');
-  const out=document.getElementById('rOut'); out.innerHTML='';
-  const ln=(t,cls)=>{const d=document.createElement('div');if(cls)d.className=cls;d.textContent=t;out.appendChild(d);};
-  const br=()=>out.appendChild(document.createElement('br'));
+  const inc = cur();
+  if(!inc) return;
+
+  const sorted = [...inc.stages].sort((a,b) => a.ts.localeCompare(b.ts));
+  const allIocs = sorted.flatMap(s => s.iocs || []);
+  const now = new Date().toLocaleString('ko-KR');
+  const out = document.getElementById('rOut');
+
+  out.innerHTML = '';
+
+  const ln = (t, cls) => {
+    const d = document.createElement('div');
+    if(cls) d.className = cls;
+    d.textContent = t;
+    out.appendChild(d);
+  };
+
+  const br = () => out.appendChild(document.createElement('br'));
+
   ln('════════════════════════════════════════════════════════');
   ln('  INCIDENT RESPONSE REPORT','rt');
   ln('════════════════════════════════════════════════════════');
   br();
-  ln(`Incident ID   : ${inc.incId||'—'}`);
+
+  ln(`Incident ID   : ${inc.incId || '—'}`);
   ln(`Title         : ${inc.title}`);
   ln(`Report Date   : ${now}`);
-  ln(`Analyst       : ${inc.analyst||'—'}`);
-  ln(`Severity      : ${inc.sev||'HIGH'}`);
+  ln(`Analyst       : ${inc.analyst || '—'}`);
+  ln(`Severity      : ${inc.sev || 'HIGH'}`);
   ln(`Total Stages  : ${sorted.length}`);
   ln(`Total IOCs    : ${allIocs.length}`);
   br();
-  ln('━━━ EXECUTIVE SUMMARY ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━','rs'); br();
-  if(sorted.length>=2){
-    const t1=new Date(sorted[0].ts).toLocaleString('ko-KR');
-    const t2=new Date(sorted[sorted.length-1].ts).toLocaleString('ko-KR');
+
+  ln('━━━ EXECUTIVE SUMMARY ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━','rs');
+  br();
+
+  if(sorted.length >= 2){
     ln(`Attack chain reconstructed across ${sorted.length} stages`);
-    ln(`From: ${t1}  →  To: ${t2}`);
-  } else if(sorted.length===1){ln(`Single-stage incident at ${new Date(sorted[0].ts).toLocaleString('ko-KR')}`);}
-  else {ln('No stages recorded.');}
+    ln(`From: ${new Date(sorted[0].ts).toLocaleString('ko-KR')}  →  To: ${new Date(sorted[sorted.length - 1].ts).toLocaleString('ko-KR')}`);
+  } else if(sorted.length === 1){
+    ln(`Single-stage incident at ${new Date(sorted[0].ts).toLocaleString('ko-KR')}`);
+  } else {
+    ln('No stages recorded.');
+  }
+
   br();
-  ln(`MITRE ATT&CK Tactics: ${[...new Set(sorted.map(s=>s.tactic))].join(' | ')}`);
+  ln(`MITRE ATT&CK Tactics: ${[...new Set(sorted.map(s => s.tactic))].join(' | ')}`);
   br();
-  ln('━━━ ATTACK CHAIN TIMELINE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━','rs'); br();
-  sorted.forEach((s,i)=>{
-    const ts=new Date(s.ts).toLocaleString('ko-KR');
-    ln(`[Stage ${i+1}] ${s.title}`);
-    ln(`  Timestamp  : ${ts}`);
+
+  ln('━━━ ATTACK CHAIN TIMELINE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━','rs');
+  br();
+
+  sorted.forEach((s,i) => {
+    ln(`[Stage ${i + 1}] ${s.title}`);
+    ln(`  Timestamp  : ${new Date(s.ts).toLocaleString('ko-KR')}`);
     ln(`  Tactic     : ${s.tactic}`);
     ln(`  Technique  : ${s.technique}`);
     if(s.user) ln(`  User       : ${s.user}`);
-    ln(`  Asset      : ${s.asset}${s.host?' ('+s.host+')':''}`);
-    ln(`  Description: ${s.desc}`);
-    if(s.siem) ln(`  SIEM Query : ${s.siem}`);
-    if(s.iocs&&s.iocs.length){
+    ln(`  Asset      : ${s.asset}${s.host ? ' (' + s.host + ')' : ''}`);
+ln(`  Description: ${s.desc}`);
+
+if(s.siem) ln(`  SIEM Query    : ${s.siem}`);
+if(s.index) ln(`  Elastic Index : ${s.index}`);
+if(s.eventId) ln(`  Event/Alert ID: ${s.eventId}`);
+if(s.kibanaUrl) ln(`  Kibana URL    : ${s.kibanaUrl}`);
+
+    if(s.iocs && s.iocs.length){
       ln('  IOCs:');
-      s.iocs.forEach(io=>{const d=document.createElement('div');d.className='ri';d.textContent=`    • ${io}`;out.appendChild(d);});
+      s.iocs.forEach(io => {
+        const d = document.createElement('div');
+        d.className = 'ri';
+        d.textContent = `    • ${io}`;
+        out.appendChild(d);
+      });
     }
-    if(s.images&&s.images.length) ln(`  Evidence   : ${s.images.length} image(s) attached`);
+
+    if(s.images && s.images.length) ln(`  Evidence   : ${s.images.length} image(s) attached`);
     br();
   });
+
   if(allIocs.length){
-    ln('━━━ CONSOLIDATED IOC LIST ━━━━━━━━━━━━━━━━━━━━━━━━━━━','rs'); br();
-    [...new Set(allIocs)].forEach(io=>{const d=document.createElement('div');d.className='ri';d.textContent=`  • ${io}`;out.appendChild(d);});
+    ln('━━━ CONSOLIDATED IOC LIST ━━━━━━━━━━━━━━━━━━━━━━━━━━━','rs');
+    br();
+
+    [...new Set(allIocs)].forEach(io => {
+      const d = document.createElement('div');
+      d.className = 'ri';
+      d.textContent = `  • ${io}`;
+      out.appendChild(d);
+    });
+
     br();
   }
+
   ln('━━━ END OF REPORT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━','rs');
   ln(`Generated by Blue Team Threat Hunt Console — ${now}`);
+  const graphBlock = document.getElementById('reportGraphBlock');
+if(graphBlock){
+  graphBlock.style.display = sorted.length ? 'block' : 'none';
+  if(sorted.length) renderEntityGraph('reportEntityGraph', inc);
+}
+
   document.getElementById('rptModal').classList.add('on');
 }
 
 function copyRpt(){
-  navigator.clipboard.writeText(document.getElementById('rOut').innerText).then(()=>{
-    const el=document.getElementById('cpDone'); el.style.display='inline';
-    setTimeout(()=>el.style.display='none',2000);
+  navigator.clipboard.writeText(document.getElementById('rOut').innerText).then(() => {
+    const el = document.getElementById('cpDone');
+    el.style.display = 'inline';
+    setTimeout(() => el.style.display = 'none', 2000);
   });
 }
 
-// ════════ EXPORT: MARKDOWN ════════
 function exportMD(){
-  const inc=cur(); if(!inc) return;
-  const sorted=[...inc.stages].sort((a,b)=>a.ts.localeCompare(b.ts));
-  const now=new Date().toLocaleString('ko-KR');
-  let md=`# Incident Report: ${inc.incId||'UNKNOWN'} — ${inc.title}\n\n`;
-  md+=`| Field | Value |\n|---|---|\n`;
-  md+=`| Incident ID | ${inc.incId||'—'} |\n| Severity | ${inc.sev||'HIGH'} |\n`;
-  md+=`| Analyst | ${inc.analyst||'—'} |\n| Report Date | ${now} |\n| Total Stages | ${sorted.length} |\n\n---\n\n`;
-  md+=`## Attack Chain Timeline\n\n`;
-  sorted.forEach((s,i)=>{
-    md+=`### Stage ${i+1}: ${s.title}\n\n`;
-    md+=`- **Timestamp:** ${new Date(s.ts).toLocaleString('ko-KR')}\n`;
-    md+=`- **Tactic:** ${s.tactic}\n- **Technique:** ${s.technique}\n`;
-    if(s.user) md+=`- **User:** ${s.user}\n`;
-    md+=`- **Asset:** ${s.asset}${s.host?' ('+s.host+')':''}\n\n`;
-    md+=`${s.desc}\n\n`;
-    if(s.siem) md+=`> **SIEM Query:** \`${s.siem}\`\n\n`;
-    if(s.iocs&&s.iocs.length){md+=`**IOCs:**\n`;s.iocs.forEach(io=>md+=`- \`${io}\`\n`);md+='\n';}
-    if(s.images&&s.images.length){
-      s.images.forEach((img,idx)=>{ md+=`![Evidence ${idx+1}](${img.dataUrl})\n\n`; });
-    }
-    md+='---\n\n';
-  });
-  const allIocs=[...new Set(sorted.flatMap(s=>s.iocs||[]))];
-  if(allIocs.length){md+=`## Consolidated IOC List\n\n`;allIocs.forEach(io=>md+=`- \`${io}\`\n`);}
-  dl(`IR_${inc.incId||'report'}.md`, md, 'text/markdown');
-}
+  const inc = cur();
+  if(!inc) return;
 
-// ════════ EXPORT: PDF ════════
-async function exportPDF(){
-  const inc=cur(); if(!inc) return;
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  const pw=doc.internal.pageSize.getWidth(), ph=doc.internal.pageSize.getHeight();
-  const mg=16, uw=pw-mg*2;
-  let y=mg;
-  const chk=(n=10)=>{ if(y+n>ph-mg){doc.addPage();y=mg;} };
-  const txt=(t,sz=8.5,col=[180,200,215],bold=false,mw=uw)=>{
-    doc.setFontSize(sz);doc.setTextColor(...col);doc.setFont('helvetica',bold?'bold':'normal');
-    doc.splitTextToSize(String(t),mw).forEach(line=>{chk(sz*.4+1.5);doc.text(line,mg,y);y+=sz*.38+1.4;});
-  };
-  doc.setFillColor(7,9,13); doc.rect(0,0,pw,ph,'F');
-  doc.setFillColor(12,15,21); doc.rect(0,0,pw,20,'F');
-  doc.setDrawColor(0,229,255); doc.setLineWidth(.25); doc.line(0,20,pw,20);
-  doc.setFontSize(13);doc.setTextColor(0,229,255);doc.setFont('helvetica','bold');
-  doc.text('BLUETEAM  THREAT HUNT — IR REPORT', mg, 13);
-  doc.setFontSize(7.5);doc.setTextColor(57,255,154);
-  doc.text(inc.incId||'UNKNOWN', pw-mg, 13, {align:'right'});
-  y=28;
-  const rows=[['Incident ID',inc.incId||'—'],['Title',inc.title],['Severity',inc.sev||'HIGH'],
-    ['Analyst',inc.analyst||'—'],['Report Date',new Date().toLocaleString('ko-KR')],
-    ['Total Stages',String((inc.stages||[]).length)]];
-  const c=[38,uw-38];
-  rows.forEach(([k,v])=>{
-    chk(7);
-    doc.setFillColor(18,24,34);doc.rect(mg,y-4,c[0],7,'F');
-    doc.setFillColor(10,14,20);doc.rect(mg+c[0],y-4,c[1],7,'F');
-    doc.setFontSize(7);doc.setTextColor(70,95,115);doc.setFont('helvetica','bold');doc.text(k,mg+2,y);
-    doc.setFontSize(7.5);doc.setTextColor(170,195,215);doc.setFont('helvetica','normal');
-    doc.text(doc.splitTextToSize(v,c[1]-4)[0],mg+c[0]+2,y);
-    y+=7;
-  });
-  y+=5;
-  const sorted=[...inc.stages].sort((a,b)=>a.ts.localeCompare(b.ts));
-  doc.setDrawColor(0,229,255);doc.setLineWidth(.2);doc.line(mg,y,pw-mg,y);y+=5;
-  txt('ATTACK CHAIN TIMELINE',11,[0,229,255],true); y+=2;
-  sorted.forEach((s,i)=>{
-    chk(22);
-    doc.setFillColor(20,26,36);doc.rect(mg,y-4,uw,8,'F');
-    doc.setDrawColor(57,255,154);doc.setLineWidth(.4);doc.line(mg,y-4,mg,y+4);
-    doc.setFontSize(9);doc.setTextColor(57,255,154);doc.setFont('helvetica','bold');
-    doc.text(`[Stage ${i+1}]  ${s.title}`,mg+4,y+.5); y+=9;
-    txt(`${new Date(s.ts).toLocaleString('ko-KR')}  |  ${s.tactic}  |  ${s.technique}`,7.5,[0,180,255]);
-    if(s.user||s.host) txt(`User: ${s.user||'—'}  |  Asset: ${s.asset}${s.host?' ('+s.host+')':''}`,7.5,[170,120,255]);
-    y+=.5; txt(s.desc,8,[155,180,200]);
-    if(s.siem){y+=1;txt(`SIEM: ${s.siem}`,7,[70,95,115]);}
-    if(s.iocs&&s.iocs.length){
-      y+=2;
-      doc.setDrawColor(255,64,96);doc.setLineWidth(.25);
-      doc.line(mg+2,y,mg+2,y+s.iocs.length*4.8+2);
-      s.iocs.forEach(io=>txt(`• ${io}`,7.5,[255,150,150]));
+  const sorted = [...inc.stages].sort((a,b) => a.ts.localeCompare(b.ts));
+  const now = new Date().toLocaleString('ko-KR');
+
+  let md = `# Incident Report: ${inc.incId || 'UNKNOWN'} — ${inc.title}\n\n`;
+  md += `| Field | Value |\n|---|---|\n`;
+  md += `| Incident ID | ${inc.incId || '—'} |\n| Severity | ${inc.sev || 'HIGH'} |\n`;
+  md += `| Analyst | ${inc.analyst || '—'} |\n| Report Date | ${now} |\n| Total Stages | ${sorted.length} |\n\n---\n\n`;
+  md += `## Attack Chain Timeline\n\n`;
+
+  sorted.forEach((s,i) => {
+    md += `### Stage ${i + 1}: ${s.title}\n\n`;
+    md += `- **Timestamp:** ${new Date(s.ts).toLocaleString('ko-KR')}\n`;
+    md += `- **Tactic:** ${s.tactic}\n- **Technique:** ${s.technique}\n`;
+    if(s.user) md += `- **User:** ${s.user}\n`;
+    md += `- **Asset:** ${s.asset}${s.host ? ' (' + s.host + ')' : ''}\n`;
+
+if(s.index) md += `- **Elastic Index:** \`${s.index}\`\n`;
+if(s.eventId) md += `- **Event / Alert ID:** \`${s.eventId}\`\n`;
+if(s.kibanaUrl) md += `- **Kibana URL:** ${s.kibanaUrl}\n`;
+
+md += `\n${s.desc}\n\n`;
+
+if(s.siem) md += `> **SIEM Query:** \`${s.siem}\`\n\n`;
+
+    if(s.iocs && s.iocs.length){
+      md += `**IOCs:**\n`;
+      s.iocs.forEach(io => md += `- \`${io}\`\n`);
+      md += '\n';
     }
-    if(s.images&&s.images.length){
-      y+=3; let ix=mg;
-      const iw=40,ih=28,gap=4;
-      for(const img of s.images){
-        if(ix+iw>pw-mg){ix=mg;y+=ih+gap;}
-        chk(ih+4);
-        try{doc.addImage(img.dataUrl,'JPEG',ix,y,iw,ih);}
-        catch(e){try{doc.addImage(img.dataUrl,'PNG',ix,y,iw,ih);}catch(e2){}}
-        ix+=iw+gap;
-      }
-      if(ix>mg) y+=ih+gap;
+
+    if(s.images && s.images.length){
+      s.images.forEach((img,idx) => {
+        md += `![Evidence ${idx + 1}](${img.dataUrl})\n\n`;
+      });
     }
-    y+=5;
-    doc.setDrawColor(28,40,54);doc.setLineWidth(.15);doc.line(mg,y,pw-mg,y);y+=4;
+
+    md += '---\n\n';
   });
-  const allIocs=[...new Set(sorted.flatMap(s=>s.iocs||[]))];
+  md += buildMermaidGraph(inc);
+
+  const allIocs = [...new Set(sorted.flatMap(s => s.iocs || []))];
   if(allIocs.length){
-    chk(12); txt('CONSOLIDATED IOC LIST',10,[0,229,255],true); y+=2;
-    allIocs.forEach(io=>txt(`• ${io}`,8,[255,150,150]));
+    md += `## Consolidated IOC List\n\n`;
+    allIocs.forEach(io => md += `- \`${io}\`\n`);
   }
-  const pc=doc.internal.getNumberOfPages();
-  for(let p=1;p<=pc;p++){
+
+  dl(`IR_${inc.incId || 'report'}.md`, md, 'text/markdown');
+}
+
+async function exportPDF(){
+  const inc = cur();
+  if(!inc) return;
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+  const pw = doc.internal.pageSize.getWidth();
+  const ph = doc.internal.pageSize.getHeight();
+  const mg = 16;
+  const uw = pw - mg * 2;
+
+  let y = mg;
+
+  const chk = (n = 10) => {
+    if(y + n > ph - mg){
+      doc.addPage();
+      y = mg;
+    }
+  };
+
+  const txt = (t, sz = 8.5, col = [180,200,215], bold = false, mw = uw) => {
+    doc.setFontSize(sz);
+    doc.setTextColor(...col);
+    doc.setFont('helvetica', bold ? 'bold' : 'normal');
+
+    doc.splitTextToSize(String(t), mw).forEach(line => {
+      chk(sz * .4 + 1.5);
+      doc.text(line, mg, y);
+      y += sz * .38 + 1.4;
+    });
+  };
+
+  doc.setFillColor(7,9,13);
+  doc.rect(0,0,pw,ph,'F');
+  doc.setFillColor(12,15,21);
+  doc.rect(0,0,pw,20,'F');
+  doc.setDrawColor(0,229,255);
+  doc.setLineWidth(.25);
+  doc.line(0,20,pw,20);
+
+  doc.setFontSize(13);
+  doc.setTextColor(0,229,255);
+  doc.setFont('helvetica','bold');
+  doc.text('BLUETEAM  THREAT HUNT — IR REPORT', mg, 13);
+
+  doc.setFontSize(7.5);
+  doc.setTextColor(57,255,154);
+  doc.text(inc.incId || 'UNKNOWN', pw - mg, 13, { align:'right' });
+
+  y = 28;
+
+  const rows = [
+    ['Incident ID', inc.incId || '—'],
+    ['Title', inc.title],
+    ['Severity', inc.sev || 'HIGH'],
+    ['Analyst', inc.analyst || '—'],
+    ['Report Date', new Date().toLocaleString('ko-KR')],
+    ['Total Stages', String((inc.stages || []).length)]
+  ];
+
+  const c = [38, uw - 38];
+
+  rows.forEach(([k,v]) => {
+    chk(7);
+
+    doc.setFillColor(18,24,34);
+    doc.rect(mg,y-4,c[0],7,'F');
+    doc.setFillColor(10,14,20);
+    doc.rect(mg+c[0],y-4,c[1],7,'F');
+
+    doc.setFontSize(7);
+    doc.setTextColor(70,95,115);
+    doc.setFont('helvetica','bold');
+    doc.text(k,mg+2,y);
+
+    doc.setFontSize(7.5);
+    doc.setTextColor(170,195,215);
+    doc.setFont('helvetica','normal');
+    doc.text(doc.splitTextToSize(String(v), c[1] - 4)[0], mg + c[0] + 2, y);
+
+    y += 7;
+  });
+
+  y += 5;
+
+  const sorted = [...inc.stages].sort((a,b) => a.ts.localeCompare(b.ts));
+
+  doc.setDrawColor(0,229,255);
+  doc.setLineWidth(.2);
+  doc.line(mg,y,pw-mg,y);
+  y += 5;
+
+  txt('ATTACK CHAIN TIMELINE', 11, [0,229,255], true);
+  y += 2;
+
+  sorted.forEach((s,i) => {
+    chk(22);
+
+    doc.setFillColor(20,26,36);
+    doc.rect(mg,y-4,uw,8,'F');
+    doc.setDrawColor(57,255,154);
+    doc.setLineWidth(.4);
+    doc.line(mg,y-4,mg,y+4);
+
+    doc.setFontSize(9);
+    doc.setTextColor(57,255,154);
+    doc.setFont('helvetica','bold');
+    doc.text(`[Stage ${i + 1}]  ${s.title}`, mg + 4, y + .5);
+
+    y += 9;
+
+    txt(`${new Date(s.ts).toLocaleString('ko-KR')}  |  ${s.tactic}  |  ${s.technique}`, 7.5, [0,180,255]);
+
+    if(s.user || s.host){
+      txt(`User: ${s.user || '—'}  |  Asset: ${s.asset}${s.host ? ' (' + s.host + ')' : ''}`, 7.5, [170,120,255]);
+    }
+
+    y += .5;
+    txt(s.desc, 8, [155,180,200]);
+
+    if(s.siem){
+      y += 1;
+      txt(`SIEM: ${s.siem}`, 7, [70,95,115]);
+    }
+    if(s.index) txt(`Elastic Index: ${s.index}`, 7, [70,95,115]);
+if(s.eventId) txt(`Event/Alert ID: ${s.eventId}`, 7, [70,95,115]);
+if(s.kibanaUrl) txt(`Kibana URL: ${s.kibanaUrl}`, 7, [70,95,115]);
+
+    if(s.iocs && s.iocs.length){
+      y += 2;
+      doc.setDrawColor(255,64,96);
+      doc.setLineWidth(.25);
+      doc.line(mg+2,y,mg+2,y+s.iocs.length*4.8+2);
+      s.iocs.forEach(io => txt(`• ${io}`, 7.5, [255,150,150]));
+    }
+
+    if(s.images && s.images.length){
+      y += 3;
+
+      let ix = mg;
+      const iw = 40;
+      const ih = 28;
+      const gap = 4;
+
+      for(const img of s.images){
+        if(ix + iw > pw - mg){
+          ix = mg;
+          y += ih + gap;
+        }
+
+        chk(ih + 4);
+
+        try {
+          doc.addImage(img.dataUrl, 'JPEG', ix, y, iw, ih);
+        } catch(e) {
+          try {
+            doc.addImage(img.dataUrl, 'PNG', ix, y, iw, ih);
+          } catch(e2) {}
+        }
+
+        ix += iw + gap;
+      }
+
+      if(ix > mg) y += ih + gap;
+    }
+
+    y += 5;
+    doc.setDrawColor(28,40,54);
+    doc.setLineWidth(.15);
+    doc.line(mg,y,pw-mg,y);
+    y += 4;
+  });
+
+  const allIocs = [...new Set(sorted.flatMap(s => s.iocs || []))];
+
+  if(allIocs.length){
+    chk(12);
+    txt('CONSOLIDATED IOC LIST', 10, [0,229,255], true);
+    y += 2;
+    allIocs.forEach(io => txt(`• ${io}`, 8, [255,150,150]));
+  }
+if((inc.stages || []).length){
+  try {
+    const svgText = buildGraphSvgString(inc);
+    const png = await svgStringToPngDataUrl(svgText);
+
+    chk(118);
+    txt('ENTITY RELATIONSHIP GRAPH', 10, [0,229,255], true);
+    y += 3;
+
+    if(y + 95 > ph - mg){
+      doc.addPage();
+      y = mg;
+      txt('ENTITY RELATIONSHIP GRAPH', 10, [0,229,255], true);
+      y += 3;
+    }
+
+    doc.addImage(png, 'PNG', mg, y, uw, 95);
+    y += 102;
+  } catch(e) {
+    console.warn('Graph export failed:', e);
+  }
+}
+  const pc = doc.internal.getNumberOfPages();
+
+  for(let p = 1; p <= pc; p++){
     doc.setPage(p);
-    doc.setFillColor(7,9,13);doc.rect(0,ph-9,pw,9,'F');
-    doc.setDrawColor(28,40,54);doc.setLineWidth(.15);doc.line(0,ph-9,pw,ph-9);
-    doc.setFontSize(6);doc.setTextColor(50,70,90);
-    doc.text(`Blue Team Threat Hunt Console  ·  ${inc.incId||'UNKNOWN'}  ·  Page ${p}/${pc}`,mg,ph-3.5);
-    doc.text(new Date().toLocaleDateString('ko-KR'),pw-mg,ph-3.5,{align:'right'});
+    doc.setFillColor(7,9,13);
+    doc.rect(0,ph-9,pw,9,'F');
+    doc.setDrawColor(28,40,54);
+    doc.setLineWidth(.15);
+    doc.line(0,ph-9,pw,ph-9);
+    doc.setFontSize(6);
+    doc.setTextColor(50,70,90);
+    doc.text(`Blue Team Threat Hunt Console  ·  ${inc.incId || 'UNKNOWN'}  ·  Page ${p}/${pc}`, mg, ph - 3.5);
+    doc.text(new Date().toLocaleDateString('ko-KR'), pw - mg, ph - 3.5, { align:'right' });
   }
-  doc.save(`IR_${inc.incId||'report'}.pdf`);
+
+  doc.save(`IR_${inc.incId || 'report'}.pdf`);
 }
 
-// ════════ EXPORT: JSON ════════
 function exportJSON(){
-  const inc=cur(); if(!inc) return;
-  dl(`IR_${inc.incId||'report'}.json`,JSON.stringify({incident:inc,exported:new Date().toISOString()},null,2),'application/json');
+  const inc = cur();
+  if(!inc) return;
+
+  dl(
+    `IR_${inc.incId || 'report'}.json`,
+    JSON.stringify({ incident: inc, exported: new Date().toISOString() }, null, 2),
+    'application/json'
+  );
 }
 
-function dl(name,content,type){
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([content],{type}));
-  a.download=name; a.click();
+function makeBackupPayload(){
+  return {
+    app: 'Blue Team Threat Hunting Console',
+    version: BACKUP_VERSION,
+    exported: new Date().toISOString(),
+    storage: 'localStorage',
+    db: DB
+  };
+}
+
+function backupJSON(){
+  const date = new Date().toISOString().slice(0,10);
+  const count = DB.incidents?.length || 0;
+
+  dl(
+    `BlueTeam_Backup_${date}_${count}_incidents.json`,
+    JSON.stringify(makeBackupPayload(), null, 2),
+    'application/json'
+  );
+
+  localStorage.setItem('bt_last_backup', new Date().toISOString());
+}
+
+function restoreFromJSON(){
+  let input = document.getElementById('importJson');
+
+  if(!input){
+    input = document.createElement('input');
+    input.type = 'file';
+    input.id = 'importJson';
+    input.accept = 'application/json,.json';
+    input.style.display = 'none';
+    input.onchange = importJSON;
+    document.body.appendChild(input);
+  }
+
+  input.click();
+}
+
+function importJSON(event){
+  const file = event.target.files && event.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = e => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      const nextDB = parsed.db || parsed;
+
+      if(!nextDB || !Array.isArray(nextDB.incidents)){
+        alert('올바른 백업 파일이 아닙니다.');
+        return;
+      }
+
+      const currentCount = DB.incidents?.length || 0;
+      const nextCount = nextDB.incidents?.length || 0;
+
+      const ok = confirm(
+        `백업 파일을 불러올까요?\n\n` +
+        `현재 인시던트: ${currentCount}개\n` +
+        `백업 인시던트: ${nextCount}개\n\n` +
+        `확인하면 현재 브라우저 저장 내용이 백업 파일 내용으로 교체됩니다.`
+      );
+
+      if(!ok) return;
+
+      DB = {
+        incidents: nextDB.incidents || [],
+        cur: nextDB.cur || null
+      };
+
+      if(DB.cur && !DB.incidents.some(i => i.id === DB.cur)){
+        DB.cur = DB.incidents[0]?.id || null;
+      }
+
+      save();
+
+      if(DB.cur) selectInc(DB.cur);
+      else showEmpty();
+
+      alert('백업 파일을 불러왔습니다.');
+    } catch(err) {
+      console.error(err);
+      alert('JSON 파일을 읽을 수 없습니다.');
+    } finally {
+      event.target.value = '';
+    }
+  };
+
+  reader.readAsText(file);
+}
+
+function setupBackupControls(){
+  if(!document.getElementById('importJson')){
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.id = 'importJson';
+    input.accept = 'application/json,.json';
+    input.style.display = 'none';
+    input.onchange = importJSON;
+    document.body.appendChild(input);
+  }
+
+  const header = document.querySelector('.hdr-right');
+
+  if(header && !document.getElementById('headerBackupBtn')){
+    const backupBtn = document.createElement('button');
+    backupBtn.className = 'hdr-btn';
+    backupBtn.id = 'headerBackupBtn';
+    backupBtn.textContent = '백업 저장';
+    backupBtn.onclick = backupJSON;
+
+    const restoreBtn = document.createElement('button');
+    restoreBtn.className = 'hdr-btn';
+    restoreBtn.id = 'headerRestoreBtn';
+    restoreBtn.textContent = '백업 불러오기';
+    restoreBtn.onclick = restoreFromJSON;
+
+    header.prepend(restoreBtn);
+    header.prepend(backupBtn);
+  }
+
+const featureSection = [...document.querySelectorAll('.rsb-sec')]
+  .find(sec => sec.textContent.includes('기능'));
+
+
+
+  const reportToolbar = document.querySelector('#rptModal .mbody > div');
+
+  if(reportToolbar && !document.getElementById('reportBackupBtn')){
+    const b = document.createElement('button');
+    b.className = 'mbtn mbtn-g';
+    b.id = 'reportBackupBtn';
+    b.textContent = '전체 백업';
+    b.onclick = backupJSON;
+    reportToolbar.appendChild(b);
+  }
+}
+
+function dl(name, content, type){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type }));
+  a.download = name;
+  a.click();
+
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+
+function openGraph(){
+  const inc = cur();
+  if(!inc){
+    alert('인시던트를 먼저 선택하세요.');
+    return;
+  }
+
+  renderEntityGraph('entityGraph', inc);
+  document.getElementById('graphModal').classList.add('on');
+}
+
+function buildGraphData(inc){
+  const stages = [...(inc.stages || [])].sort((a,b) => a.ts.localeCompare(b.ts));
+  const nodes = [];
+  const links = [];
+  const seen = new Map();
+
+  const addNode = (id, label, type) => {
+    if(seen.has(id)) return seen.get(id);
+    const node = { id, label, type };
+    seen.set(id, node);
+    nodes.push(node);
+    return node;
+  };
+
+  const addLink = (source, target, type = 'entity-link') => {
+    links.push({ source, target, type });
+  };
+
+  stages.forEach((s, i) => {
+    const stageId = `stage:${s.id}`;
+    addNode(stageId, `S${i + 1}: ${s.title}`, 'stage');
+
+    if(i > 0){
+      addLink(`stage:${stages[i - 1].id}`, stageId, 'stage-flow');
+    }
+
+    if(s.user){
+      const id = `user:${s.user}`;
+      addNode(id, s.user, 'user');
+      addLink(stageId, id);
+    }
+
+    if(s.host || s.asset){
+      const label = s.host ? `${s.asset} · ${s.host}` : s.asset;
+      const id = `asset:${label}`;
+      addNode(id, label, 'asset');
+      addLink(stageId, id);
+    }
+
+    if(s.tactic){
+      const id = `tactic:${s.tactic}`;
+      addNode(id, s.tactic, 'tactic');
+      addLink(stageId, id);
+    }
+
+    if(s.technique){
+      const id = `technique:${s.technique}`;
+      addNode(id, s.technique, 'technique');
+      addLink(stageId, id);
+    }
+
+    (s.iocs || []).forEach(io => {
+      const id = `ioc:${io}`;
+      addNode(id, io, 'ioc');
+      addLink(stageId, id);
+    });
+  });
+
+  layoutGraph(nodes, 900, 560);
+
+  return { nodes, links, seen, stages };
+}
+
+function renderEntityGraph(svgId, inc){
+  const svg = document.getElementById(svgId);
+  const graph = buildGraphData(inc);
+
+  svg.innerHTML = '';
+
+  if(!graph.stages.length){
+    svg.innerHTML = `<text x="450" y="280" text-anchor="middle" class="graph-empty">표시할 Stage가 없습니다</text>`;
+    return;
+  }
+
+  graph.links.forEach(l => {
+    const a = graph.seen.get(l.source);
+    const b = graph.seen.get(l.target);
+    if(!a || !b) return;
+
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', a.x);
+    line.setAttribute('y1', a.y);
+    line.setAttribute('x2', b.x);
+    line.setAttribute('y2', b.y);
+    line.setAttribute('class', `graph-link ${l.type}`);
+    svg.appendChild(line);
+  });
+
+  graph.nodes.forEach(n => {
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class', `graph-node ${n.type}`);
+    g.setAttribute('transform', `translate(${n.x},${n.y})`);
+
+    const title = document.createElementNS('http://www.w3.org/2000/svg','title');
+    title.textContent = n.label;
+
+    const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circle.setAttribute('r', n.type === 'stage' ? 10 : 7);
+
+    const text = document.createElementNS('http://www.w3.org/2000/svg','text');
+    text.setAttribute('x', 13);
+    text.setAttribute('y', 4);
+    text.textContent = shortenGraphLabel(n.label);
+
+    g.appendChild(title);
+    g.appendChild(circle);
+    g.appendChild(text);
+    svg.appendChild(g);
+  });
+}
+
+function layoutGraph(nodes, width, height){
+  const byType = { user:[], tactic:[], stage:[], technique:[], asset:[], ioc:[] };
+
+  nodes.forEach(n => {
+    (byType[n.type] || byType.stage).push(n);
+  });
+
+const columns = [
+  ['user', 90],
+  ['tactic', 230],
+  ['stage', 410],
+  ['technique', 570],
+  ['asset', 710],
+  ['ioc', 820]
+];
+
+  columns.forEach(([type, x]) => {
+    const list = byType[type] || [];
+    const gap = height / (list.length + 1);
+
+    list.forEach((n, i) => {
+      n.x = x;
+      n.y = Math.max(36, Math.min(height - 36, gap * (i + 1)));
+    });
+  });
+}
+
+function shortenGraphLabel(text){
+  const s = String(text || '');
+  return s.length > 34 ? s.slice(0, 31) + '...' : s;
+}
+
+function buildMermaidGraph(inc){
+  const stages = [...(inc.stages || [])].sort((a,b) => a.ts.localeCompare(b.ts));
+  if(!stages.length) return '';
+
+  let out = `## Entity Relationship Graph\n\n\`\`\`mermaid\ngraph LR\n`;
+
+  const clean = s => String(s || '')
+    .replace(/["`]/g, '')
+    .replace(/[^\w가-힣 .:@/()[\]-]/g, ' ')
+    .slice(0, 60);
+
+  stages.forEach((s, i) => {
+    const sid = `S${i + 1}`;
+    out += `  ${sid}["${clean(s.title)}"]\n`;
+
+    if(i > 0) out += `  S${i} --> ${sid}\n`;
+    if(s.user) out += `  ${sid} --> U${i + 1}["User: ${clean(s.user)}"]\n`;
+    if(s.host || s.asset) out += `  ${sid} --> A${i + 1}["Asset: ${clean(s.host || s.asset)}"]\n`;
+    if(s.tactic) out += `  ${sid} --> T${i + 1}["Tactic: ${clean(s.tactic)}"]\n`;
+    if(s.technique) out += `  ${sid} --> M${i + 1}["Technique: ${clean(s.technique)}"]\n`;
+
+    (s.iocs || []).forEach((io, j) => {
+      out += `  ${sid} --> I${i + 1}_${j + 1}["IOC: ${clean(io)}"]\n`;
+    });
+  });
+
+  out += `\`\`\`\n\n---\n\n`;
+  return out;
+}
+function buildGraphSvgString(inc, width = 900, height = 560){
+  const graph = buildGraphData(inc);
+
+  const nodeColor = {
+    stage: ['#00e5ff', '#9af6ff'],
+    user: ['#c060ff', '#e3b0ff'],
+    asset: ['#ff9520', '#ffc27a'],
+    ioc: ['#ff4060', '#ff9aaa'],
+    tactic: ['#39ff9a', '#a5ffd0'],
+    technique: ['#ffd060', '#ffe6a0']
+  };
+
+  const textEsc = v => String(v ?? '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+
+  if(!graph.stages.length){
+    return `
+      <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+        <rect width="${width}" height="${height}" fill="#05070b"/>
+        <text x="${width / 2}" y="${height / 2}" fill="#8fb2d0" font-size="18" text-anchor="middle">표시할 Stage가 없습니다</text>
+      </svg>
+    `;
+  }
+
+  const links = graph.links.map(l => {
+    const a = graph.seen.get(l.source);
+    const b = graph.seen.get(l.target);
+    if(!a || !b) return '';
+
+    const stroke = l.type === 'stage-flow' ? '#39ff9a' : '#37536f';
+    const sw = l.type === 'stage-flow' ? '2' : '1.2';
+
+    return `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${stroke}" stroke-width="${sw}" opacity=".85"/>`;
+  }).join('');
+
+  const nodes = graph.nodes.map(n => {
+    const [fill, stroke] = nodeColor[n.type] || nodeColor.stage;
+    const r = n.type === 'stage' ? 10 : 7;
+    const label = textEsc(shortenGraphLabel(n.label));
+
+    return `
+      <g transform="translate(${n.x},${n.y})">
+        <circle r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="1.8"/>
+        <text x="13" y="4"
+          fill="#d5e8f6"
+          font-family="monospace"
+          font-size="10"
+          stroke="#05070b"
+          stroke-width="3"
+          paint-order="stroke"
+          stroke-linejoin="round">${label}</text>
+      </g>
+    `;
+  }).join('');
+
+  return `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+      <rect width="${width}" height="${height}" fill="#05070b"/>
+      ${links}
+      ${nodes}
+    </svg>
+  `;
+}
+
+function svgStringToPngDataUrl(svgText, width = 900, height = 560){
+  return new Promise((resolve, reject) => {
+    const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgText);
+    const img = new Image();
+
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#05070b';
+      ctx.fillRect(0, 0, width, height);
+      ctx.drawImage(img, 0, 0, width, height);
+
+      resolve(canvas.toDataURL('image/png'));
+    };
+
+    img.onerror = reject;
+    img.src = dataUrl;
+  });
 }
 
 init();
 </script>
+
 </body>
 </html>
